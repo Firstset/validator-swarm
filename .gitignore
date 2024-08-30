@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+venv
+validator_keys
+config.toml
