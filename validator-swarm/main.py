@@ -29,8 +29,8 @@ def main():
     
     try:
         config = toml.load("./config.toml")
-    except:
-        sys.exit('Error: unable to open config.toml file.')
+    except Exception as e:
+        sys.exit(f'Error: unable to open config.toml file. {e}')
     
     try:
         validator = Validator(config)
@@ -42,8 +42,8 @@ def main():
     try:
         mnemonic = read_mnemonic()
         passwd = read_password() 
-    except:
-        sys.exit('Error: while reading password or mnemonic.')
+    except Exception as e:
+        sys.exit(f'Error: while reading password or mnemonic. {e}')
 
     try:
     # call ./deposit and create n validator keys
@@ -61,7 +61,6 @@ def main():
  
     try:
         # submit keys to protocol
-        raise Exception("fake exception!")
         csm.submit_keys(deposit_data)
     except Exception as e:
         print(f'Error: failed to submit keys into protocol {e}')
