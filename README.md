@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- The (deposit key generation tool)[]
+- The [deposit key generation tool](https://github.com/ethereum/staking-deposit-cli)
 
 - A previously generated seed phrase
 
