@@ -19,7 +19,7 @@ def main():
     parser = argparse.ArgumentParser(description='Validator key creation and submission')
 
     parser.add_argument('-n', '--n_keys', type=int, required=True, help='the number of keys to be created')
-    parser.add_argument('-i', '--index', type=int, required=True, help='the starting key index')
+    parser.add_argument('-i', '--index', type=int, default=0, help='the starting key index')
     args = parser.parse_args(sys.argv[1:])
 
     if int(args.n_keys) <= 0 or int(args.index) < 0:
