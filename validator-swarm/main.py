@@ -3,15 +3,16 @@ from .deposit import Deposit
 from .validator import Validator
 import sys
 import toml
-import getpass
 import argparse
+import secrets
 
 def read_mnemonic():
     mnemonic = input('Enter mnemonic: ')
     return mnemonic
 
 def read_password():
-    password = getpass.getpass('Enter password: ')
+    password = secrets.token_bytes(8).hex() 
+    
     return password
 
 def main():
