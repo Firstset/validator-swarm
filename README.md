@@ -26,7 +26,7 @@ pip install -r requirements.txt
 
 ## Exceute
 
-`python -m bulk-deploy.main --n_keys <N> --index <I>`
+`python -m validator-swarm.main --n_keys <N> --index <I>`
 
 `N` is the number of keys to be generated and submitted, and `I` is the starting index for key generation.
 
