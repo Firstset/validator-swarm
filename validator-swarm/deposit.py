@@ -44,12 +44,17 @@ class Deposit:
 
         
         all_keystore_files = [f for f in directory.iterdir() if f.is_file() and f.name.endswith('.json') and f.name.startswith('keystore')]
-        all_keystore_files.sort()
+        all_keystore_files = sorted(all_keystore_files, key=lambda p: p.stat().st_ctime)
 
         keystores = []
         keystore_files = all_keystore_files[-n_keys:]
         for kf in keystore_files:
             with open(kf, 'r') as f:
                 keystores.append(json.load(f))
+        
+        # remove kystore and deposit data files
+        os.remove(deposit_file)
+        for kf in keystore_files:
+            os.remove(kf)
 
         return keystores, deposit_data

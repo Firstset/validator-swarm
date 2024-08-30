@@ -57,7 +57,7 @@ class Validator:
             added_keylist = [k['validating_pubkey'] for k in response_json['data']]
             new_keylist= [f'0x{x["pubkey"]}' for x in keystores]
             
-            if any(x in new_keylist for x in added_keylist):
+            if any([x in added_keylist for x in new_keylist]):
                 raise Exception('The submitted keys are already loaded into the validator.')
 
             response = requests.post(url=url, headers=headers, json=data)
@@ -70,6 +70,7 @@ class Validator:
         
 
     def remove_keys(self, keystores):
+        
         pubkeys = [f'0x{x["pubkey"]}' for x in keystores]
         data = {
             'pubkeys': pubkeys

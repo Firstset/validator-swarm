@@ -46,7 +46,7 @@ def main():
         sys.exit('Error: while reading password or mnemonic.')
 
     try:
-    # call ./deposit and create x validator keys
+    # call ./deposit and create n validator keys
         keystores, deposit_data = deposit.create_keys(n, index, mnemonic, passwd)
     except Exception as e:
         sys.exit(f'Error: while creating deposit keys {e}')
@@ -54,14 +54,14 @@ def main():
     try:
         # submit keystores to validator client
         validator.load_keys(keystores, passwd)
-        # if duplicated keys:
-            # remove all new keys.
-            # exit
+        
     except Exception as e:
         sys.exit(f'Error: failed to load keys into validator client: {e}')
 
+ 
     try:
         # submit keys to protocol
+        raise Exception("fake exception!")
         csm.submit_keys(deposit_data)
     except Exception as e:
         print(f'Error: failed to submit keys into protocol {e}')
