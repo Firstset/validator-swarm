@@ -1,0 +1,1 @@
+[{"pubkey": "0xdeadbeef", "withdrawal_credentials": "1234567890987654321", "amount": 32000000000, "signature": "123456789abcdef", "deposit_message_root": "123456789abcdef", "deposit_data_root": "123456789abcdef", "fork_version": "666", "network_name": "mainnet", "deposit_cli_version": "6.6.6"}]

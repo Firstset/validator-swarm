@@ -1,6 +1,7 @@
 from pathlib import Path
 import subprocess
 import os
+import shutil
 import json
 
 class Deposit:
@@ -53,8 +54,7 @@ class Deposit:
                 keystores.append(json.load(f))
         
         # remove kystore and deposit data files
-        os.remove(deposit_file)
-        for kf in keystore_files:
-            os.remove(kf)
+        # os.remove(directory) ?
+        shutil.rmtree(directory)
 
         return keystores, deposit_data

@@ -100,7 +100,7 @@ class CSM:
         try:
             # resp = contract_call.transact(tx)
             resp = contract_call.transact(tx)
-            print('Tx hash: ', resp)
+            print('Tx hash: ', Web3.to_hex(resp))
 
         except exceptions.ContractCustomError as e:
             print(e.data)
