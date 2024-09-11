@@ -1,6 +1,6 @@
-# Lido CSM one-shot validator spawning
+# Lido CSM validator manager
 
-## Requirements
+## Pre-requisites
 
 - The [deposit key generation tool](https://github.com/ethereum/staking-deposit-cli)
 
@@ -21,21 +21,38 @@ Copy `config.toml.example` to `config.toml` and fill with your configuration val
 cp config.toml.example config.toml
 ```
 
-The following table details the fields required by the config file:
+The config file should contain:
 
-| **Section**            | **Key**               | **Value**                                     | **Description**                                                      |
-|------------------------|-----------------------|-----------------------------------------------|----------------------------------------------------------------------|
-| *Root*                 | `eth_base`            | `<eth_base_address>`                          | Ethereum address that will provide bond funds, and sign transaction  |
-| *Root*                 | `chain`               | `"holesky"`                                   | Name of the ethereum network (e.g. holesky, mainnet)                 |
-| **[deposit]**          | `withdrawal_address`  | `<withdrawal_address>`                        | Address to set as withdraw address of the validator                  |
-| **[deposit]**          | `path`                | `"/path/to/deposit/tool/deposit/"`            | Path to the deposit tool                                             |
-| **[csm]**              | `node_operator_id`    | `999999`                                      | Node operator identifier                                             |
-| **[csm.contracts]**    | `module_address`      | `"0x4562c3e63c2e586cD1651B958C22F88135aCAd4f"`| Lido Community Staking Module contract address                       |
-| **[csm.contracts]**    | `accounting_address`  | `"0xc093e53e8F4b55A223c18A2Da6fA00e60DD5EFE1"`| Lido Community Staking Module Accounting contract address            |
-| **[rpc]**              | `address`             | `"http://my-rpc-address:port"`                | EL RPC provider address                                              |
-| **[validator_api]**    | `auth_token`          | `"api-token-0x123456789"`                     | Authentication token for the validator keymanager API                |
-| **[validator_api]**    | `ssh_address`         | `"user@server"`                               | SSH address where validator keymanager API is deployed               |
-| **[validator_api]**    | `port`                | `5062`                                        | Port number for the validator keymanager API                         |
+```toml
+# eth_base is the ETH address that will send the transaction 
+# to register the Lido CSM validators. The bond will be send
+# from eth_base's ETH balance
+eth_base="<eth_base_address>" 
+chain="holesky"
+
+[deposit]
+# Lido CSM testnet withdrawal address. 
+withdrawal_address="0xF0179dEC45a37423EAD4FaD5fCb136197872EAd9"
+path="/path/to/deposit/tool/deposit" # staking-cli-deposit executable
+
+[csm]
+# Lido CSM Node Operator id. Remove line if no ID has bee
+# assigned yet.
+node_operator_id=999999
+
+[csm.contracts]
+# Lido CSM tstnet contracts.
+module_address="0x4562c3e63c2e586cD1651B958C22F88135aCAd4f"
+accounting_address="0xc093e53e8F4b55A223c18A2Da6fA00e60DD5EFE1"
+
+[rpc]
+address="http://my-rpc-address:port"
+
+[validator_api]
+auth_token="api-token-0x123456789"
+ssh_address="user@server"
+port=5062
+```
 
 
 Install python dependencies
