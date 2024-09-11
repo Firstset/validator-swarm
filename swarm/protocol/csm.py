@@ -3,8 +3,6 @@ from .. import util
 import os
 from web3 import Web3, exceptions
 
-contracts = {}
-
 class CSM:
     def __init__(self, config):
 
@@ -18,15 +16,19 @@ class CSM:
             'accounting'
         ]
 
+        self.contracts = {}
+
         for name in contract_names:
-            contracts[name] = {}
-            contracts[name]['abi'] = util.load_abi(os.path.join(cwd, 'abis', 'csm', f'{name}.json'))
-            contracts[name]['address'] = config['csm']['contracts'][f'{name}_address']
+            self.contracts[name] = {}
+            self.contracts[name]['abi'] = util.load_abi(os.path.join(cwd, 'abis', 'csm', f'{name}.json'))
+            self.contracts[name]['address'] = config['csm']['contracts'][f'{name}_address']
 
 # TODO: decouple
     def get_contract(self, name):
         con = Web3(Web3.HTTPProvider(self.rpc, request_kwargs={'timeout': 60}))
-        contract = con.eth.contract(address=contracts[name]['address'], abi=contracts[name]['abi'])
+        contract = con.eth.contract(
+            address=self.contracts[name]['address'],
+            abi=self.contracts[name]['abi'])
         return contract
 
     def have_repeated_keys(self, deposit_data):
@@ -95,7 +97,7 @@ class CSM:
         tx = {
             'value': bond,
             'from': self.eth_base,
-            'to': contracts['module']['address'],
+            'to': self.contracts['module']['address'],
             }
         try:
             # resp = contract_call.transact(tx)
