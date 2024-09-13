@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch, Mock
 
+from swarm.exception import ValidatorDeleteException, ValidatorLoadException
 from swarm.validator import RemoteValidator
 
 class TestRemoteValidator(unittest.TestCase):
@@ -94,7 +95,7 @@ class TestRemoteValidator(unittest.TestCase):
         password = 'p4$$w0rd'
         keystores = [{'pubkey': 'deadbeef'}]
         
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidatorLoadException):
             v.load_keys_to_remote_signer(keystores, password)
 
     @patch('swarm.validator.remote_validator.SSHTunnel')
@@ -115,7 +116,7 @@ class TestRemoteValidator(unittest.TestCase):
 
         keystores = [{'pubkey': 'deadbeef'}]
         
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidatorLoadException):
             v.load_remote_keys_to_validator_client(keystores)
         
     @patch('swarm.validator.remote_validator.SSHTunnel')
@@ -137,12 +138,12 @@ class TestRemoteValidator(unittest.TestCase):
         password = 'p4$$w0rd'
         keystores = [{'pubkey': 'abadbabe'}]
         
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidatorLoadException):
             v.load_keys_to_remote_signer(keystores, password)
 
 
         get_response.json.return_value = {'data': [{'pubkey': '0xdeadbeef'}]} 
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidatorLoadException):
             v.load_remote_keys_to_validator_client(keystores)
 
     @patch('swarm.validator.remote_validator.SSHTunnel')
@@ -170,9 +171,9 @@ class TestRemoteValidator(unittest.TestCase):
         v = RemoteValidator(self.config)
         
         keystores = [{'pubkey': 'abadbabe'}]
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidatorDeleteException):
             v.remove_keys_from_remote_signer(keystores)
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidatorDeleteException):
             v.remove_remote_keys_from_validator_client(keystores)
 

@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch, Mock
 
 from swarm.validator import LocalValidator
+from swarm.exception import ValidatorLoadException, ValidatorDeleteException
 
 class TestLocalValidator(unittest.TestCase):
     def setUp(self):
@@ -72,7 +73,7 @@ class TestLocalValidator(unittest.TestCase):
         password = 'p4$$w0rd'
         keystores = [{'pubkey': 'deadbeef'}]
         
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidatorLoadException):
             v.load_keys(keystores, password)
 
         
@@ -95,7 +96,7 @@ class TestLocalValidator(unittest.TestCase):
         password = 'p4$$w0rd'
         keystores = [{'pubkey': 'abadbabe'}]
         
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidatorLoadException):
             v.load_keys(keystores, password)
 
     @patch('swarm.validator.local_validator.SSHTunnel')
@@ -122,6 +123,6 @@ class TestLocalValidator(unittest.TestCase):
         v = LocalValidator(self.config)
         
         keystores = [{'pubkey': 'abadbabe'}]
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidatorDeleteException):
             v.remove_keys(keystores)
 

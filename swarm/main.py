@@ -2,6 +2,7 @@ from swarm.validator.remote_validator import RemoteValidator
 from .protocol.csm import CSM
 from .deposit import Deposit
 from .validator import RemoteValidator, LocalValidator 
+from .exception import * 
 import sys
 import toml
 import argparse
@@ -43,33 +44,33 @@ def main():
             validator = LocalValidator(config)
         deposit = Deposit(config)
         csm = CSM(config)
-    except Exception as e:
+    except ConfigException as e:
         sys.exit(f'Error: while reading configuration file. {e}')
 
     try:
         mnemonic = read_mnemonic()
         passwd = read_password() 
-    except Exception as e:
+    except InputException as e:
         sys.exit(f'Error: while reading password or mnemonic. {e}')
 
     try:
     # call ./deposit and create n validator keys
         keystores, deposit_data = deposit.create_keys(n, index, mnemonic, passwd)
-    except Exception as e:
+    except DepositException as e:
         sys.exit(f'Error: while creating deposit keys {e}')
 
     try:
         # submit keystores to validator client
         validator.load_keys(keystores, passwd)
         
-    except Exception as e:
+    except ValidatorLoadException as e:
         sys.exit(f'Error: failed to load keys into validator client: {e}')
 
  
     try:
         # submit keys to protocol
         csm.submit_keys(deposit_data)
-    except Exception as e:
+    except CSMSubmissionException as e:
         print(f'Error: failed to submit keys into protocol {e}')
         print('removing keys from validator client')
         # rollback 
