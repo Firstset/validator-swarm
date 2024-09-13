@@ -1,39 +1,14 @@
 import json
-import subprocess
-import time
 import requests
+from .validator import Validator, SSHTunnel
 
-class SSHTunnel:
 
-    def __init__(self, address, port):
-        self.address = address
-        self.port = port
-
-    def __enter__(self):
-        print("Opening ssh tunnel...")
-        self.tunnel = subprocess.Popen([
-            'ssh',
-            '-N',
-            '-L',
-            f'{self.port}:localhost:{self.port}',
-            self.address
-        ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        time.sleep(4) # HACK: wait for ssh tunnel to be ready!!
-        print("ssh tunnel is open")
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.tunnel.terminate()
-        if exc_type is not None:
-            print(exc_value, traceback)
-            return False
-
-class Validator:
+class LocalValidator(Validator):
     
     def __init__(self, config):
         self.ssh_address = config['validator_api']['ssh_address']
         self.keymanager_port = config['validator_api']['port']
         self.auth_token = config['validator_api']['auth_token']
-
 
     def load_keys(self, keystores, passwd):
         # get keys
@@ -49,7 +24,7 @@ class Validator:
             'Authorization': f'Bearer {self.auth_token}',
             'ContentType': 'application/json'
         }
-        with SSHTunnel(self.ssh_address, self.keymanager_port):
+        with SSHTunnel(self.ssh_address, self.keymanager_port) as x:
             # check if the keys are deployed
             response = requests.get(url=url, headers=headers)
             response_json = response.json()
