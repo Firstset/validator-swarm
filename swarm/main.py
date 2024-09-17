@@ -22,7 +22,7 @@ def main():
 
     parser.add_argument('-n', '--n_keys', type=int, required=True, help='the number of keys to be created')
     parser.add_argument('-i', '--index', type=int, default=0, help='the starting key index')
-    parser.add_argument('-r', '--remote_sign', type=bool, default=False, help='if true, validators will be configured with remote signing')
+    parser.add_argument('-r', '--remote_sign', action='store_true', help='if true, validators will be configured with remote signing')
     args = parser.parse_args(sys.argv[1:])
 
     if int(args.n_keys) <= 0 or int(args.index) < 0:

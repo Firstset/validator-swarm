@@ -52,6 +52,11 @@ address="http://my-rpc-address:port"
 auth_token="api-token-0x123456789"
 ssh_address="user@server"
 port=5062
+
+[remote_signer]
+ssh_address="user@signer"
+port=9000
+url="http://my-signer.xyz:port"
 ```
 
 
@@ -64,8 +69,9 @@ pip install -r requirements.txt
 
 ## Exceute
 
-`python -m validator-swarm.main --n_keys <N> --index <I>`
+`python -m swarm.main --n_keys <N> --index <I> [--remote_sign]`
 
 `N` is the number of keys to be generated and submitted, and `I` is the starting index for key generation, defaults to 0.
 
+The `--remote_sign` flag indicates that the keystores will be uploaded to a remote signer, while also registered as remote keys in the configured validator.
 
