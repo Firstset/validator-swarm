@@ -13,7 +13,6 @@ class RemoteValidator(Validator):
         
         self.remote_signer_ssh_address = config['remote_signer']['ssh_address']
         self.remote_signer_port = config['remote_signer']['port']
-        self.remote_signer_auth_token = config['remote_signer']['auth_token']
         
         self.remote_signer_url = config['remote_signer']['url']
         
@@ -42,7 +41,6 @@ class RemoteValidator(Validator):
 
         # load validators into lighthouse
         headers = {
-            'Authorization': f'Bearer {self.remote_signer_auth_token}',
             'ContentType': 'application/json'
         }
         with SSHTunnel(self.remote_signer_ssh_address, self.remote_signer_port):
@@ -91,8 +89,10 @@ class RemoteValidator(Validator):
                 raise ValidatorLoadException('The submitted keys are already loaded into the validator client.')
 
             response = requests.post(url=validator_endpoint, headers=headers, json=validator_data)
+            print(response.json(), flush=True) 
             if response.status_code != 200:
                 raise ValidatorLoadException(f'Submission of keys to validator client unsuccessful. Status code: {response.status_code}')
+            print("Loaded remote keys into validator successfuly")
 
     def remove_keys_from_remote_signer(self, keystores):
         
@@ -104,7 +104,6 @@ class RemoteValidator(Validator):
         # load validators into lighthouse
         url = f'http://localhost:{self.remote_signer_port}/eth/v1/keystores'
         headers = {
-            'Authorization': f'Bearer {self.remote_signer_auth_token}',
             'ContentType': 'application/json'
         }
         with SSHTunnel(self.remote_signer_ssh_address, self.remote_signer_port):
