@@ -1,6 +1,8 @@
+from swarm.validator.remote_validator import RemoteValidator
 from .protocol.csm import CSM
 from .deposit import Deposit
-from .validator import Validator
+from .validator import RemoteValidator, LocalValidator 
+from .exception import * 
 import sys
 import toml
 import argparse
@@ -20,6 +22,7 @@ def main():
 
     parser.add_argument('-n', '--n_keys', type=int, required=True, help='the number of keys to be created')
     parser.add_argument('-i', '--index', type=int, default=0, help='the starting key index')
+    parser.add_argument('-r', '--remote_sign', action='store_true', help='if true, validators will be configured with remote signing')
     args = parser.parse_args(sys.argv[1:])
 
     if int(args.n_keys) <= 0 or int(args.index) < 0:
@@ -27,43 +30,47 @@ def main():
     
     n = args.n_keys
     index = args.index
-    
+    remote = args.remote_sign
+
     try:
         config = toml.load("./config.toml")
     except Exception as e:
         sys.exit(f'Error: unable to open config.toml file. {e}')
     
     try:
-        validator = Validator(config)
+        if remote:
+            validator = RemoteValidator(config)
+        else:
+            validator = LocalValidator(config)
         deposit = Deposit(config)
         csm = CSM(config)
-    except Exception as e:
+    except ConfigException as e:
         sys.exit(f'Error: while reading configuration file. {e}')
 
     try:
         mnemonic = read_mnemonic()
         passwd = read_password() 
-    except Exception as e:
+    except InputException as e:
         sys.exit(f'Error: while reading password or mnemonic. {e}')
 
     try:
     # call ./deposit and create n validator keys
         keystores, deposit_data = deposit.create_keys(n, index, mnemonic, passwd)
-    except Exception as e:
+    except DepositException as e:
         sys.exit(f'Error: while creating deposit keys {e}')
 
     try:
         # submit keystores to validator client
         validator.load_keys(keystores, passwd)
         
-    except Exception as e:
+    except ValidatorLoadException as e:
         sys.exit(f'Error: failed to load keys into validator client: {e}')
 
  
     try:
         # submit keys to protocol
         csm.submit_keys(deposit_data)
-    except Exception as e:
+    except CSMSubmissionException as e:
         print(f'Error: failed to submit keys into protocol {e}')
         print('removing keys from validator client')
         # rollback 

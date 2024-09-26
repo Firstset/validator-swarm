@@ -19,3 +19,8 @@ address="http://my-rpc-address:port"
 auth_token="api-token-0x123456789"
 ssh_address="user@server"
 port=5062
+
+[remote_signer]
+ssh_address="user@signer"
+port=9000
+url="http://my-remote-signer.xyz"

@@ -1,13 +1,10 @@
-import os
-from subprocess import CalledProcessError
 import unittest
 from unittest.mock import patch, Mock
-import shutil
 
-from requests.api import get
-from swarm.validator import Validator
+from swarm.validator import LocalValidator
+from swarm.exception import ValidatorLoadException, ValidatorDeleteException
 
-class TestValidator(unittest.TestCase):
+class TestLocalValidator(unittest.TestCase):
     def setUp(self):
         self.config = {
             'validator_api': {
@@ -18,22 +15,24 @@ class TestValidator(unittest.TestCase):
         }
 
     def test_validator_config_params(self):
-        v = Validator(self.config)
+        v = LocalValidator(self.config)
         self.assertEqual(v.ssh_address, 'user@ip')
         self.assertEqual(v.keymanager_port, '42069')
         self.assertEqual(v.auth_token, 'api-token-0xcafebabe')
 
     def test_validator_missing_config_params(self):
         with self.assertRaises(KeyError):
-            Validator({}) # missing config values
+            LocalValidator({}) # missing config values
     
-    @patch('swarm.validator.SSHTunnel')
+    @patch('swarm.validator.local_validator.SSHTunnel')
     @patch('requests.get')
     @patch('requests.post')
     def test_load_keys(self, mock_post, mock_get, mock_ssh_tunnel):
-        mock_ssh_tunnel_instance = mock_ssh_tunnel.return_value 
-        mock_ssh_tunnel_instance.__enter__.return_value = mock_ssh_tunnel
+        mock_ssh_tunnel_instance = Mock()
+        mock_ssh_tunnel_instance.__enter__ = Mock ()
+        mock_ssh_tunnel_instance.__exit__ = Mock ()
         mock_ssh_tunnel_instance.__exit__.return_value = False
+        mock_ssh_tunnel.return_value = mock_ssh_tunnel_instance
         
         get_response = Mock()
         get_response.status_code = 200
@@ -45,7 +44,7 @@ class TestValidator(unittest.TestCase):
         post_response.json.return_value = [{'status': 'imported'}]
         mock_post.return_value = post_response
         
-        v = Validator(self.config)
+        v = LocalValidator(self.config)
         
 
         password = 'p4$$w0rd'
@@ -54,14 +53,10 @@ class TestValidator(unittest.TestCase):
 
         # implicit assert: no exceptions
     
-    @patch('swarm.validator.SSHTunnel')
+    @patch('swarm.validator.local_validator.SSHTunnel')
     @patch('requests.get')
     @patch('requests.post')
     def test_load_keys_key_exists(self, mock_post, mock_get, mock_ssh_tunnel):
-        mock_ssh_tunnel_instance = mock_ssh_tunnel.return_value 
-        mock_ssh_tunnel_instance.__enter__.return_value = mock_ssh_tunnel
-        mock_ssh_tunnel_instance.__exit__.return_value = False
-        
         get_response = Mock()
         get_response.status_code = 200
         get_response.json.return_value = {'data': [{'validating_pubkey': '0xdeadbeef'}]} 
@@ -72,24 +67,20 @@ class TestValidator(unittest.TestCase):
         post_response.json.return_value = [{'status': 'imported'}]
         mock_post.return_value = post_response
         
-        v = Validator(self.config)
+        v = LocalValidator(self.config)
         
 
         password = 'p4$$w0rd'
         keystores = [{'pubkey': 'deadbeef'}]
         
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidatorLoadException):
             v.load_keys(keystores, password)
 
         
-    @patch('swarm.validator.SSHTunnel')
+    @patch('swarm.validator.local_validator.SSHTunnel')
     @patch('requests.get')
     @patch('requests.post')
     def test_load_keys_post_failed(self, mock_post, mock_get, mock_ssh_tunnel):
-        mock_ssh_tunnel_instance = mock_ssh_tunnel.return_value 
-        mock_ssh_tunnel_instance.__enter__.return_value = mock_ssh_tunnel
-        mock_ssh_tunnel_instance.__exit__.return_value = False
-        
         get_response = Mock()
         get_response.status_code = 200
         get_response.json.return_value = {'data': [{'validating_pubkey': '0xdeadbeef'}]} 
@@ -99,47 +90,39 @@ class TestValidator(unittest.TestCase):
         post_response.status_code = 400
         mock_post.return_value = post_response
         
-        v = Validator(self.config)
+        v = LocalValidator(self.config)
         
 
         password = 'p4$$w0rd'
         keystores = [{'pubkey': 'abadbabe'}]
         
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidatorLoadException):
             v.load_keys(keystores, password)
 
-    @patch('swarm.validator.SSHTunnel')
+    @patch('swarm.validator.local_validator.SSHTunnel')
     @patch('requests.delete')
     def test_remove_keys(self, mock_delete, mock_ssh_tunnel):
-        mock_ssh_tunnel_instance = mock_ssh_tunnel.return_value 
-        mock_ssh_tunnel_instance.__enter__.return_value = mock_ssh_tunnel
-        mock_ssh_tunnel_instance.__exit__.return_value = False
-        
         delete_response = Mock()
         delete_response.status_code = 200
         mock_delete.return_value = delete_response
         
-        v = Validator(self.config)
+        v = LocalValidator(self.config)
         
         keystores = [{'pubkey': 'abadbabe'}]
         v.remove_keys(keystores)
 
         # implicit assert: no exceptions
     
-    @patch('swarm.validator.SSHTunnel')
+    @patch('swarm.validator.local_validator.SSHTunnel')
     @patch('requests.delete')
     def test_remove_keys_fail(self, mock_delete, mock_ssh_tunnel):
-        mock_ssh_tunnel_instance = mock_ssh_tunnel.return_value 
-        mock_ssh_tunnel_instance.__enter__.return_value = mock_ssh_tunnel
-        mock_ssh_tunnel_instance.__exit__.return_value = False
-        
         delete_response = Mock()
         delete_response.status_code = 400
         mock_delete.return_value = delete_response
         
-        v = Validator(self.config)
+        v = LocalValidator(self.config)
         
         keystores = [{'pubkey': 'abadbabe'}]
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidatorDeleteException):
             v.remove_keys(keystores)
 
