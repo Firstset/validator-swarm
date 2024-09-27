@@ -24,3 +24,6 @@ port=5062
 ssh_address="user@signer"
 port=9000
 url="http://my-remote-signer.xyz"
+
+[state_check]
+node_ids = ['420','666']

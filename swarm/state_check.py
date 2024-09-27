@@ -29,27 +29,11 @@ def print_state_summary(state):
     print(f'Only in RemoteSigner: {len(state['R7'])} {warning if len(state['R7']) > 0 else ok}')
     print('-------------------------------')
 
-def do_check(config, args):
-    delete = args.delete
-
-    csm = CSM(config)
-    validator = Validator(config)
-    remote_signer = RemoteSigner(config)
-
-    validator_keys = validator.get_loaded_keys()
-    validator_remote_keys = validator.get_remote_keys()
-    
-    remote_signer_keys = remote_signer.get_loaded_keys()
-    
-    no_ids = config['state_check']['node_operator_ids']
- 
-    csm_keys = [] 
-    for id in no_ids:
-        csm_keys += csm.get_registered_keys(id)
-    
+def compute_state(csm_keys, validator_keys, validator_remote_keys, remote_signer_keys):
     L = set(csm_keys)
     V = set(validator_keys)
     K = set(remote_signer_keys)
+    
     R1 = L & V & K                  # In CSM, Validator, and RemoteSigner
     R2 = (L & V) - K                # In CSM and Validator, but not in RemoteSigner
     R3 = (L & K) - V                # In CSM and RemoteSigner, but not in Validator
@@ -77,12 +61,11 @@ def do_check(config, args):
         'R6': R6, 
         'R7': R7, 
     }
+    return state
 
-    print_state_summary(state)
-    
-    if delete:
-        to_remove_from_validator = R6 | R4
-        to_remove_from_signer = R7 | R4
+def delete_dangling(state, validator_remote_keys, remote_signer, validator):
+        to_remove_from_validator = state['R6'] | state['R4']
+        to_remove_from_signer = state['R7'] | state['R4']
 
         print()
         print('-------------------------')
@@ -98,9 +81,34 @@ def do_check(config, args):
         for k in to_remove_from_validator:
             print(k)
         
-        to_remove_from_validator_remote = to_remove_from_validator & set(validator_remote_keys)
+        to_remove_from_validator_remote = to_remove_from_validator & set(validator_remote_keys) #TODO: this info is already in state
         to_remove_from_validator_local = to_remove_from_validator - to_remove_from_validator_remote
         remote_signer.remove_keys(list(to_remove_from_signer))
         validator.remove_keys(list(to_remove_from_validator_local))
         validator.remove_keys(list(to_remove_from_validator_remote))
+
+
+def do_check(config, args):
+    delete = args.delete
+
+    csm = CSM(config)
+    validator = Validator(config)
+    remote_signer = RemoteSigner(config)
+
+    validator_keys = validator.get_loaded_keys()
+    validator_remote_keys = validator.get_remote_keys()
+    
+    remote_signer_keys = remote_signer.get_loaded_keys()
+    
+    no_ids = config['state_check']['node_operator_ids']
+ 
+    csm_keys = [] 
+    for id in no_ids:
+        csm_keys += csm.get_registered_keys(id)
+    
+    state = compute_state(csm_keys, validator_keys, validator_remote_keys, remote_signer_keys)
+    print_state_summary(state)
+    
+    if delete:
+        delete_dangling(state, validator_remote_keys, remote_signer, validator)
 
