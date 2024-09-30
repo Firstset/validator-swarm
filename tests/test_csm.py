@@ -13,7 +13,7 @@ class TestCSM(unittest.TestCase):
                     'module_address': '0xCSModule',
                     'accounting_address': '0xAccounting'}
                 },
-            'rpc': {'address': 'http://my-rpc-provider:8545'},
+            'rpc': {'execution_address': 'http://my-rpc-provider:8545'},
             'eth_base': '0xabadbabe'
             }
 

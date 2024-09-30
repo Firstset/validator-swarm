@@ -13,7 +13,8 @@ module_address="0x4562c3e63c2e586cD1651B958C22F88135aCAd4f"
 accounting_address="0xc093e53e8F4b55A223c18A2Da6fA00e60DD5EFE1"
 
 [rpc]
-address="http://my-rpc-address:port"
+execution_address="http://my-exec-rpc-address:port"
+consensus_address="http://my-beacon-rpc-address:port"
 
 [validator_api]
 auth_token="api-token-0x123456789"
@@ -23,7 +24,7 @@ port=5062
 [remote_signer]
 ssh_address="user@signer"
 port=9000
-url="http://my-remote-signer.xyz"
+url="http://my-remote-signer.xyz:port"
 
 [state_check]
-node_ids = ['420','666']
+node_operator_ids = ['420','666']

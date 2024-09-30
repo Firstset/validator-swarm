@@ -22,3 +22,10 @@ class CSMSubmissionException(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
+class ExitSignException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+class ExitBroadcastException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
