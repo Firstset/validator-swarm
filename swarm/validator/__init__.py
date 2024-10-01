@@ -1,4 +1,4 @@
-from .local_validator import LocalValidator
-from .remote_validator import RemoteValidator
+from .validator import Validator
+from .remote_signer import RemoteSigner
 
-__all__ = [LocalValidator, RemoteValidator]
+__all__ = [Validator, RemoteSigner]

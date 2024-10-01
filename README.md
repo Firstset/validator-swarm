@@ -57,6 +57,9 @@ port=5062
 ssh_address="user@signer"
 port=9000
 url="http://my-signer.xyz:port"
+
+[state_check]
+node_operator_ids=[420, 666]
 ```
 
 
@@ -69,9 +72,18 @@ pip install -r requirements.txt
 
 ## Exceute
 
-`python -m swarm.main --n_keys <N> --index <I> [--remote_sign]`
+### Deploy validators 
+
+`python -m swarm deploy --n_keys <N> --index <I> [--remote_sign]`
 
 `N` is the number of keys to be generated and submitted, and `I` is the starting index for key generation, defaults to 0.
 
 The `--remote_sign` flag indicates that the keystores will be uploaded to a remote signer, while also registered as remote keys in the configured validator.
 
+### State check
+
+The state check subcommand will retrieve all keys registered in CSM, validator client, and remote signer, and check for inconsistencies.
+
+`python -m swarm state-check [--delete]`
+
+`--delete` will attempt to remove dangling validator keys, i.e. validator keys that are present either in the validaor client or remote signer, but not in CSM. Keys registered in CSM will never be deleted.

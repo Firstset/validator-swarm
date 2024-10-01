@@ -2,6 +2,7 @@ import requests
 from .. import util
 import os
 from web3 import Web3, exceptions
+from collections import defaultdict
 
 class CSM:
     def __init__(self, config):
@@ -46,7 +47,19 @@ class CSM:
         response_json = response.json()
 
         return len(response_json['data']) > 0
-            
+        
+    def get_registered_keys(self, id):
+        print(f'Fetching all keys registered in CSM {id}...')
+        contract = self.get_contract('module')
+        function = contract.functions['getNodeOperator']
+        summary = function(id).call()
+        total_added_keys = summary[0]
+
+        function = contract.functions['getSigningKeys']
+        res = function(id, 0, total_added_keys).call()
+        keys = Web3.to_hex(res)[2:]
+        split = [keys[i:i+96] for i in range(0, len(keys), 96)]
+        return [f'0x{k}' for k in split]
 
     def get_eth_bond(self, n_validators):
         contract = self.get_contract('accounting') 
