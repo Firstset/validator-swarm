@@ -1,3 +1,4 @@
+from swarm.exception import ValidatorDeleteException
 from .protocol.csm import CSM
 from .validator import Validator, RemoteSigner
 
@@ -85,10 +86,10 @@ def delete_dangling(state, validator_remote_keys, remote_signer, validator):
         to_remove_from_validator_local = to_remove_from_validator - to_remove_from_validator_remote
         remote_signer.remove_keys(list(to_remove_from_signer))
         validator.remove_keys(list(to_remove_from_validator_local))
-        validator.remove_keys(list(to_remove_from_validator_remote))
+        validator.remove_remote_keys(list(to_remove_from_validator_remote))
 
 
-def do_check(config, args):
+async def do_check(config, args):
     delete = args.delete
 
     csm = CSM(config)
@@ -104,7 +105,7 @@ def do_check(config, args):
  
     csm_keys = [] 
     for id in no_ids:
-        csm_keys += csm.get_registered_keys(id)
+        csm_keys += await csm.get_registered_keys(id)
     
     state = compute_state(csm_keys, validator_keys, validator_remote_keys, remote_signer_keys)
     print_state_summary(state)

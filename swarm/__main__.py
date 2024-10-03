@@ -1,6 +1,7 @@
 import argparse
 import toml
 import sys 
+import asyncio
 
 from . import state_check, deploy, exit
 
@@ -33,6 +34,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if hasattr(args, 'func'):
-        args.func(config, args)
+        t = asyncio.run(args.func(config, args))
     else:
         parser.print_help()

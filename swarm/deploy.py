@@ -13,7 +13,7 @@ def read_password():
     password = secrets.token_bytes(8).hex() 
     return password
 
-def deploy(config, args):
+async def deploy(config, args):
     if args.n_keys <= 0 or args.index < 0:
         sys.exit('incorrect parameters for validator key deployment')
     
@@ -55,6 +55,6 @@ def deploy(config, args):
  
     try:
         # submit keys to protocol
-        csm.submit_keys(deposit_data)
+        await csm.submit_keys(deposit_data)
     except CSMSubmissionException as e:
         sys.exit(f'Error: failed to submit keys into protocol {e}')
