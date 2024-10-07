@@ -10,7 +10,6 @@ class CSM:
 
         cwd = os.getcwd()
         self.node_operator_id = config['csm'].get('node_operator_id') # None if not present
-        # self.rpc = config['rpc']['execution_address']
         self.rpc = config['rpc']['execution_address_ws']
         self.eth_base = config['eth_base']
 
@@ -26,6 +25,8 @@ class CSM:
             self.contracts[name] = {}
             self.contracts[name]['abi'] = util.load_abi(os.path.join(cwd, 'abis', 'csm', f'{name}.json'))
             self.contracts[name]['address'] = config['csm']['contracts'][f'{name}_address']
+
+        self.exit_monitor_ids = config['monitoring']['node_operator_ids']
 
     def have_repeated_keys(self, deposit_data):
         pubkeys = [x['pubkey'] for x in deposit_data]
@@ -123,3 +124,18 @@ class CSM:
             
         print('Uploaded keys and sent ETH to CSM sucessfully')
 
+    async def exit_monitor(self):
+        async with NodeWSConnection(self.rpc) as con:
+            contract = con.get_contract(**self.contracts['VEBO'])
+            event = contract.events['ValidatorExitRequest']
+            filter = await event.create_filter(
+                    from_block='latest',
+                    argument_filters = {
+                        'stakingModuleId': 4, # Harcoded CSM module id
+                        'nodeOperatorId': self.exit_monitor_ids, 
+                    })
+            await con.w3.eth.subscribe('newHeads')
+            async for _ in con.w3.socket.process_subscriptions():
+                print('Checking for exit request events...')
+                for e in await filter.get_new_entries():
+                    yield e

@@ -26,5 +26,5 @@ ssh_address="user@signer"
 port=9000
 url="http://my-remote-signer.xyz:port"
 
-[state_check]
+[monitoring]
 node_operator_ids = ['420','666']

@@ -101,7 +101,7 @@ async def do_check(config, args):
     
     remote_signer_keys = remote_signer.get_loaded_keys()
     
-    no_ids = config['state_check']['node_operator_ids']
+    no_ids = config['monitoring']['node_operator_ids']
  
     csm_keys = [] 
     for id in no_ids:
