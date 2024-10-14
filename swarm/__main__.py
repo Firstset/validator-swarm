@@ -3,7 +3,7 @@ import toml
 import sys 
 import asyncio
 
-from . import state_check, deploy, exit
+from . import state_check, deploy, exit, local_sign
 
 if __name__ == '__main__':
  

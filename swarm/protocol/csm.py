@@ -3,7 +3,8 @@ from .. import util
 import os
 from web3 import Web3, exceptions
 from ..connection.connection import NodeWSConnection
-from ..exception import KeyExistsException
+from ..exception import CSMSubmissionException, KeyExistsException, TransactionRejectedException
+from ..local_sign import local_sign
 
 class CSM:
     def __init__(self, config):
@@ -124,6 +125,57 @@ class CSM:
             
         print('Uploaded keys and sent ETH to CSM sucessfully')
 
+    async def submit_keys_local_sign(self, deposit_data):
+
+        if self.have_repeated_keys(deposit_data):
+            print("Error: one or more keys are already uploaded to the protocol")
+            raise KeyExistsException()
+
+        bond = await self.get_eth_bond(len(deposit_data))
+        
+        print('Submitting keys....')
+
+        async with NodeWSConnection(self.rpc) as con:
+            contract = con.get_contract(**self.contracts['module'])
+            pubkeys = [Web3.to_bytes(hexstr=(x['pubkey'])) for x in deposit_data]
+            pubkeys_bytes = b''.join(pubkeys)
+            sigs = [Web3.to_bytes(hexstr=(x['signature'])) for x in deposit_data]
+            sigs_bytes = b''.join(sigs)
+            management = (util.int_to_address(0), util.int_to_address(0), False)
+            referrer =  util.int_to_address(0)
+            if self.node_operator_id == None:
+                function = contract.functions['addNodeOperatorETH']
+                contract_call = function(
+                    len(deposit_data), 
+                    pubkeys_bytes,
+                    sigs_bytes,
+                    management, 
+                    [],
+                    referrer
+                )
+            else:
+                function = contract.functions['addValidatorKeysETH']
+                contract_call = function(
+                    self.node_operator_id,
+                    len(deposit_data), 
+                    pubkeys_bytes,
+                    sigs_bytes
+                )
+            tx = {'value': hex(bond), 'from': self.eth_base}
+            try:
+                complete_tx = await contract_call.build_transaction(tx)
+                resp = await local_sign(8000, complete_tx)
+                print('Tx hash: ', resp)
+
+            except exceptions.ContractCustomError as e:
+                print(e.data)
+                print('Error returnerd by contract call', e.message)
+                raise CSMSubmissionException(e)
+            except TransactionRejectedException as e:
+                print('Transaction was rejected by signer.')
+                raise CSMSubmissionException(e)
+        
+        print('Uploaded keys and sent ETH to CSM sucessfully')
     async def exit_monitor(self):
         async with NodeWSConnection(self.rpc) as con:
             contract = con.get_contract(**self.contracts['VEBO'])
