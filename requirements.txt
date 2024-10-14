@@ -1,3 +1,4 @@
+pytest-asyncio
 requests==2.32.3
 toml==0.10.2
 web3
