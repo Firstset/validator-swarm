@@ -2,7 +2,7 @@ import argparse
 import toml
 import sys 
 
-from . import state_check, deploy
+from . import state_check, deploy, exit
 
 if __name__ == '__main__':
  
@@ -25,6 +25,10 @@ if __name__ == '__main__':
     parser_deploy.add_argument('-i', '--index', type=int, default=0, help='the starting key index')
     parser_deploy.add_argument('-r', '--remote_sign', action='store_true', help='if true, validators will be configured with remote signing')
     parser_deploy.set_defaults(func=deploy.deploy)
+    
+    parser_exit = subparsers.add_parser('exit', help='Exit a validator')
+    parser_exit.add_argument('--pubkey', type=str, help='the public key of the validator to be exited')
+    parser_exit.set_defaults(func=exit.exit)
     
     args = parser.parse_args()
 
