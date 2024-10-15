@@ -10,7 +10,7 @@ class CSM:
 
         cwd = os.getcwd()
         self.node_operator_id = config['csm'].get('node_operator_id') # None if not present
-        self.rpc = config['rpc']['execution_address_ws']
+        self.rpc = config['rpc']['execution_address']
         self.eth_base = config['eth_base']
 
         contract_names = [

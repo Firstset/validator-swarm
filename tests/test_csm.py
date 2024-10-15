@@ -16,7 +16,7 @@ config = {
             'accounting_address': '0xAccounting',
             'VEBO_address': '0xVEBO'}
         },
-    'rpc': {'execution_address_ws': 'ws://my-rpc-provider:8546'},
+    'rpc': {'execution_address': 'ws://my-rpc-provider:8546'},
     'eth_base': '0xabadbabe',
     'monitoring': {
         'node_operator_ids': [1, 2, 3, 420]
