@@ -84,9 +84,13 @@ def delete_dangling(state, validator_remote_keys, remote_signer, validator):
         
         to_remove_from_validator_remote = to_remove_from_validator & set(validator_remote_keys) #TODO: this info is already in state
         to_remove_from_validator_local = to_remove_from_validator - to_remove_from_validator_remote
-        remote_signer.remove_keys(list(to_remove_from_signer))
-        validator.remove_keys(list(to_remove_from_validator_local))
-        validator.remove_remote_keys(list(to_remove_from_validator_remote))
+        
+        if len(to_remove_from_signer) > 0:
+            remote_signer.remove_keys(list(to_remove_from_signer))
+        if len(to_remove_from_validator_local) > 0:
+            validator.remove_keys(list(to_remove_from_validator_local))
+        if len(to_remove_from_validator_remote) > 0:
+            validator.remove_remote_keys(list(to_remove_from_validator_remote))
 
 
 async def do_check(config, args):

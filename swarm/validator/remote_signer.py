@@ -1,8 +1,9 @@
 import json
 import requests
 
-from swarm.exception import ValidatorDeleteException, ValidatorLoadException
+from swarm.exception import ValidatorDeleteException, ValidatorLoadException, RemoteSignerURLException, ValidatorReadException
 from .validator import SSHTunnel
+from ..util import is_well_formed_url
 
 class RemoteSigner():
     
@@ -12,10 +13,13 @@ class RemoteSigner():
         self.remote_signer_port = config['remote_signer']['port']
         
         self.remote_signer_url = config['remote_signer']['url']
-        
+        if not is_well_formed_url(f'{self.remote_signer_url}', 'http'):
+            raise RemoteSignerURLException('Remote signer URL is not well formed. check config file.')
+
         self.headers = {
             'ContentType': 'application/json'
         }
+
 
     def load_keys(self, keystores, passwd):
         passwords = [passwd] * len(keystores)
@@ -73,7 +77,7 @@ class RemoteSigner():
             response_json = response.json()
             
             if response.status_code != 200:
-                raise Exception(f'error reading keys loaded in validator client')
+                raise ValidatorReadException(f'error reading keys loaded in remote signer')
         
         added_keys = [k["validating_pubkey"] for k in response_json['data']]
         return added_keys

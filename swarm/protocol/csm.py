@@ -3,7 +3,7 @@ from .. import util
 import os
 from web3 import Web3, exceptions
 from ..connection.connection import NodeWSConnection
-from ..exception import CSMSubmissionException, KeyExistsException, TransactionRejectedException
+from ..exception import CSMSubmissionException, KeyExistsException, TransactionRejectedException, ExecutionLayerRPCException
 from ..local_sign import local_sign
 
 class CSM:
@@ -12,6 +12,9 @@ class CSM:
         cwd = os.getcwd()
         self.node_operator_id = config['csm'].get('node_operator_id') # None if not present
         self.rpc = config['rpc']['execution_address']
+        if not util.is_well_formed_url(self.rpc, 'ws'):
+            raise ExecutionLayerRPCException('Excecution layer RPC is not well formed. It must be a valid web socket address, and specify a port.')
+
         self.eth_base = config['eth_base']
 
         contract_names = [

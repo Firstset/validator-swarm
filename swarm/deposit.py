@@ -5,12 +5,17 @@ import shutil
 import json
 
 from .exception import DepositException
+from .util import is_file_executable
 
 class Deposit:
     def __init__(self, config):
-       self.path = config['deposit']['path'] 
-       self.withdrawal = config['deposit']['withdrawal_address']
-       self.chain = config['chain']
+        self.path = config['deposit']['path'] 
+        self.withdrawal = config['deposit']['withdrawal_address']
+        self.chain = config['chain']
+        
+        if not is_file_executable(self.path):
+            raise DepositException('deposit-cli executable cannot be found.')
+       
 
     def create_keys(self, n_keys: int, index: int, mnemonic: str, password: str):
         try:

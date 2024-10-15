@@ -1,9 +1,8 @@
 import json
 import requests
 
-from swarm.exception import ValidatorDeleteException, ValidatorLoadException
+from swarm.exception import ValidatorDeleteException, ValidatorLoadException, ValidatorReadException
 from .ssh_tunnel import SSHTunnel
-
 
 class Validator():
     
@@ -116,7 +115,7 @@ class Validator():
             response_json = response.json()
             
             if response.status_code != 200:
-                raise Exception(f'error reading keys loaded in validator client')
+                raise ValidatorReadException(f'error reading keys loaded in validator client')
         
         added_keys = [k["validating_pubkey"] for k in response_json['data']]
         return added_keys
@@ -132,7 +131,7 @@ class Validator():
             response_json = response.json()
             
             if response.status_code != 200:
-                raise Exception(f'error reading remote keys loaded in validator client')
+                raise ValidatorReadException(f'error reading remote keys loaded in validator client')
         
         added_keys = [k["pubkey"] for k in response_json['data']]
         return added_keys

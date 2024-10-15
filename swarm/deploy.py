@@ -13,6 +13,7 @@ def read_password():
     password = secrets.token_bytes(8).hex() 
     return password
 
+
 async def deploy(config, args):
     if args.n_keys <= 0 or args.index < 0:
         sys.exit('incorrect parameters for validator key deployment')
@@ -26,8 +27,8 @@ async def deploy(config, args):
         validator = Validator(config)
         deposit = Deposit(config)
         csm = CSM(config)
-    except ConfigException as e:
-        sys.exit(f'Error: while reading configuration file. {e}')
+    except Exception as e:
+        sys.exit(f'{type(e)}: {e}')
 
     try:
         mnemonic = read_mnemonic()

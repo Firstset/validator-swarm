@@ -18,6 +18,10 @@ class ValidatorLoadException(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
+class ValidatorReadException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
 class ValidatorDeleteException(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
@@ -35,5 +39,21 @@ class ExitBroadcastException(Exception):
         super().__init__(*args)
 
 class TransactionRejectedException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+class RemoteSignerURLException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+class ExecutionLayerRPCException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+class ConsensusLayerRPCException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+class SSHTunnelException(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
