@@ -1,6 +1,7 @@
 import argparse
 import toml
 import sys 
+import asyncio
 
 from . import state_check, deploy, exit
 
@@ -30,9 +31,13 @@ if __name__ == '__main__':
     parser_exit.add_argument('--pubkey', type=str, help='the public key of the validator to be exited')
     parser_exit.set_defaults(func=exit.exit)
     
+    parser_exit_monitor = subparsers.add_parser('auto_exit', help='Monitor for validator exit requests')
+    parser_exit_monitor.add_argument('--delete', action='store_true', help='automatically exit validators')
+    parser_exit_monitor.set_defaults(func=exit.automated_exit)
+    
     args = parser.parse_args()
 
     if hasattr(args, 'func'):
-        args.func(config, args)
+        t = asyncio.run(args.func(config, args))
     else:
         parser.print_help()

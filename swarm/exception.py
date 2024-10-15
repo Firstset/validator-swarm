@@ -10,6 +10,10 @@ class DepositException(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
+class KeyExistsException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
 class ValidatorLoadException(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
