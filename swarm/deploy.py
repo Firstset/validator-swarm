@@ -55,6 +55,7 @@ async def deploy(config, args):
  
     try:
         # submit keys to protocol
-        await csm.submit_keys(deposit_data)
+        # await csm.submit_keys(deposit_data)
+        await csm.submit_keys_local_sign(deposit_data)
     except CSMSubmissionException as e:
         sys.exit(f'Error: failed to submit keys into protocol {e}')
