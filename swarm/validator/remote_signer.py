@@ -1,4 +1,6 @@
 import json
+from typing import List
+from eth_typing import Address
 import requests
 
 from swarm.exception import ValidatorDeleteException, ValidatorLoadException, RemoteSignerURLException, ValidatorReadException
@@ -7,7 +9,7 @@ from ..util import is_well_formed_url
 
 class RemoteSigner():
     
-    def __init__(self, config):
+    def __init__(self, config: dict):
         
         self.remote_signer_ssh_address = config['remote_signer']['ssh_address']
         self.remote_signer_port = config['remote_signer']['port']
@@ -21,7 +23,7 @@ class RemoteSigner():
         }
 
 
-    def load_keys(self, keystores, passwd):
+    def load_keys(self, keystores: List[dict], passwd: str) -> None:
         passwords = [passwd] * len(keystores)
         data = {
             'keystores': [json.dumps(x) for x in keystores],
@@ -50,7 +52,7 @@ class RemoteSigner():
             print('Loaded keystores into remote signer successfuly')
     
 
-    def remove_keys(self, pubkeys):
+    def remove_keys(self, pubkeys: List[Address]) -> None:
         
         data = {
             'pubkeys': pubkeys
@@ -67,7 +69,7 @@ class RemoteSigner():
         print('Deleted keystores from remote signer successfuly')
 
 
-    def get_loaded_keys(self):
+    def get_loaded_keys(self) -> List[Address]:
         print('Fetching all keys registered in remote signer...')
         # get keys
         url = f'http://localhost:{self.remote_signer_port}/eth/v1/keystores'

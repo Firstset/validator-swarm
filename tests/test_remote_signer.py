@@ -8,7 +8,7 @@ class TestRemoteSigner(unittest.TestCase):
     def setUp(self):
         self.config = {
             'remote_signer': {
-                'url': '1.2.3.4:6666',
+                'url': 'http://1.2.3.4:6666',
                 'ssh_address': 'user@signer',
                 'port': '4200',
                 'auth_token': 'api-token-0xadeadbad'

@@ -4,7 +4,7 @@ import socket
 from ..exception import SSHTunnelException
 
 class SSHTunnel:
-    def __init__(self, address, port):
+    def __init__(self, address: str, port: int) -> None:
         self.address = address
         self.port = port
 
@@ -32,7 +32,7 @@ class SSHTunnel:
             print(exc_value, traceback)
             return False
     
-    def _wait_for_tunnel_ready(self, timeout):
+    def _wait_for_tunnel_ready(self, timeout: int) -> None:
         start_time = time.time()
         while True:
             try:

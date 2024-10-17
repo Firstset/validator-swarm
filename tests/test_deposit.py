@@ -4,6 +4,7 @@ import unittest
 import unittest.mock as mock
 import shutil
 from swarm.deposit import Deposit
+from swarm.exception import DepositException
 
 class TestDeposit(unittest.TestCase):
     def setUp(self):
@@ -16,23 +17,30 @@ class TestDeposit(unittest.TestCase):
         }
 
 
-    def test_deposit_correct_params(self):
+    @mock.patch('swarm.deposit.is_file_executable')
+    def test_deposit_correct_params(self, mock_file_check):
+        mock_file_check.return_value = True
 
         dep = Deposit(self.config)
         self.assertEqual(dep.chain, 'mainnet')
         self.assertEqual(dep.withdrawal, '0xdeadbeef')
         self.assertEqual(dep.path, '/path/to/deposit')
-        
+
     def test_deposit_incorrect_params(self):
         with self.assertRaises(KeyError):
             Deposit({}) # missing config values
 
+    def test_find_deposit_cli(self):
+        with self.assertRaises(DepositException):
+            Deposit(self.config)
 
     # We assume that deposit-cli either creates correct files
     # and exits with exit code = 0, or does not create any
     # files and exits with exit code != 0
+    @mock.patch('swarm.deposit.is_file_executable')
     @mock.patch('subprocess.check_output')
-    def test_create_keys(self, mock_check_output):
+    def test_create_keys(self, mock_check_output, mock_file_check):
+        mock_file_check.return_value = True
         dep = Deposit(self.config)
 
         def copy_test_data(_):

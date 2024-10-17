@@ -3,12 +3,14 @@ import subprocess
 import os
 import shutil
 import json
+from typing import List, Tuple
+
 
 from .exception import DepositException
 from .util import is_file_executable
 
 class Deposit:
-    def __init__(self, config):
+    def __init__(self, config) -> None:
         self.path = config['deposit']['path'] 
         self.withdrawal = config['deposit']['withdrawal_address']
         self.chain = config['chain']
@@ -17,7 +19,7 @@ class Deposit:
             raise DepositException('deposit-cli executable cannot be found.')
        
 
-    def create_keys(self, n_keys: int, index: int, mnemonic: str, password: str):
+    def create_keys(self, n_keys: int, index: int, mnemonic: str, password: str) -> Tuple[List[dict], List[dict]]:
         try:
             print(f'creating {n_keys} keys...')
             subprocess.check_output([
@@ -62,7 +64,6 @@ class Deposit:
                     keystores.append(json.load(f))
             
             # remove kystore and deposit data files
-            # os.remove(directory) ?
             shutil.rmtree(directory)
         except Exception as ex:
             raise DepositException(ex)

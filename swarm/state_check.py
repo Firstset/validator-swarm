@@ -1,3 +1,7 @@
+from argparse import Namespace
+from typing import List
+
+from eth_typing import Address
 from swarm.exception import ValidatorDeleteException
 from .protocol.csm import CSM
 from .validator import Validator, RemoteSigner
@@ -6,7 +10,7 @@ warning = '⚠️'
 ok = '✅'
 critical = '🚨'
 
-def print_state_summary(state):
+def print_state_summary(state) -> None:
     print()
     print('-------------------------------')
     print('VALIDATOR KEYS STATE SUMMARY:')
@@ -30,7 +34,13 @@ def print_state_summary(state):
     print(f'Only in RemoteSigner: {len(state['R7'])} {warning if len(state['R7']) > 0 else ok}')
     print('-------------------------------')
 
-def compute_state(csm_keys, validator_keys, validator_remote_keys, remote_signer_keys):
+def compute_state(
+        csm_keys: List[Address], 
+        validator_keys: List[Address], 
+        validator_remote_keys: List[Address],
+        remote_signer_keys: List[Address]
+    ) -> dict:
+    
     L = set(csm_keys)
     V = set(validator_keys)
     K = set(remote_signer_keys)
@@ -64,7 +74,7 @@ def compute_state(csm_keys, validator_keys, validator_remote_keys, remote_signer
     }
     return state
 
-def delete_dangling(state, validator_remote_keys, remote_signer, validator):
+def delete_dangling(state: dict, validator_remote_keys: List[str], remote_signer: RemoteSigner, validator: Validator) -> None:
         to_remove_from_validator = state['R6'] | state['R4']
         to_remove_from_signer = state['R7'] | state['R4']
 
@@ -93,7 +103,7 @@ def delete_dangling(state, validator_remote_keys, remote_signer, validator):
             validator.remove_remote_keys(list(to_remove_from_validator_remote))
 
 
-async def do_check(config, args):
+async def do_check(config: dict, args: Namespace) -> None:
     delete = args.delete
 
     csm = CSM(config)

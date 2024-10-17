@@ -1,3 +1,4 @@
+from argparse import Namespace
 from .protocol.csm import CSM
 from .deposit import Deposit
 from .validator import Validator, RemoteSigner 
@@ -5,16 +6,16 @@ from .exception import *
 import sys
 import secrets
 
-def read_mnemonic():
+def read_mnemonic() -> str:
     mnemonic = input('Enter mnemonic: ')
     return mnemonic
 
-def read_password():
+def read_password() -> str:
     password = secrets.token_bytes(8).hex() 
     return password
 
 
-async def deploy(config, args):
+async def deploy(config: dict, args : Namespace) -> None:
     if args.n_keys <= 0 or args.index < 0:
         sys.exit('incorrect parameters for validator key deployment')
     
