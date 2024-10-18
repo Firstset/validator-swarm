@@ -6,7 +6,7 @@ from urllib.parse import parse_qs, urlparse
 
 DIRECTORY = "./swarm/local_sign_app/dist"
 
-def getHandler(tx):
+def getHandler(tx: dict) -> type[http.server.SimpleHTTPRequestHandler]:
     class SigningHandler(http.server.SimpleHTTPRequestHandler):
         def __init__(self, *args):
             self.tx = tx
@@ -37,7 +37,7 @@ def getHandler(tx):
 
     return SigningHandler
 
-async def local_sign(port, tx):
+async def local_sign(port: int, tx: dict) -> str:
     with http.server.HTTPServer(("", port), getHandler(tx)) as httpd:
         print(f"Serving local signing app on http://localhost:{port}")
         httpd.serve_forever()

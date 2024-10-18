@@ -1,17 +1,23 @@
+from typing import AsyncGenerator, List
+from eth_typing import Address
 import requests
+from web3.types import TxParams
 from .. import util
 import os
 from web3 import Web3, exceptions
 from ..connection.connection import NodeWSConnection
-from ..exception import CSMSubmissionException, KeyExistsException, TransactionRejectedException
+from ..exception import CSMSubmissionException, KeyExistsException, TransactionRejectedException, ExecutionLayerRPCException
 from ..local_sign import local_sign
 
 class CSM:
-    def __init__(self, config):
+    def __init__(self, config: dict) -> None:
 
         cwd = os.getcwd()
         self.node_operator_id = config['csm'].get('node_operator_id') # None if not present
         self.rpc = config['rpc']['execution_address']
+        if not util.is_well_formed_url(self.rpc, 'ws'):
+            raise ExecutionLayerRPCException('Excecution layer RPC is not well formed. It must be a valid web socket address, and specify a port.')
+
         self.eth_base = config['eth_base']
 
         contract_names = [
@@ -29,7 +35,7 @@ class CSM:
 
         self.exit_monitor_ids = config['monitoring']['node_operator_ids']
 
-    def have_repeated_keys(self, deposit_data):
+    def have_repeated_keys(self, deposit_data: dict):
         pubkeys = [x['pubkey'] for x in deposit_data]
         url = f'https://keys-api-holesky.testnet.fi/v1/keys/find'
         headers = {
@@ -45,7 +51,7 @@ class CSM:
 
         return len(response_json['data']) > 0
         
-    async def get_registered_keys(self, id):
+    async def get_registered_keys(self, id: int) -> List[Address]:
         print(f'Fetching all keys registered in CSM {id}...')
         async with NodeWSConnection(self.rpc) as con:
             contract = con.get_contract(**self.contracts['module'])
@@ -59,7 +65,7 @@ class CSM:
             split = [keys[i:i+96] for i in range(0, len(keys), 96)]
         return [f'0x{k}' for k in split]
 
-    async def get_eth_bond(self, n_validators):
+    async def get_eth_bond(self, n_validators: int) -> int:
         async with NodeWSConnection(self.rpc) as con:
             print(con)
             contract = con.get_contract(**self.contracts['accounting']) 
@@ -73,7 +79,7 @@ class CSM:
             print(f'Bond is {bond/(1e18)} ETH for {n_validators} keys')
         return bond
 
-    async def submit_keys(self, deposit_data):
+    async def submit_keys(self, deposit_data: dict) -> None:
 
         if self.have_repeated_keys(deposit_data):
             print("Error: one or more keys are already uploaded to the protocol")
@@ -114,7 +120,6 @@ class CSM:
                 'to': self.contracts['module']['address'],
                 }
             try:
-                # resp = contract_call.transact(tx)
                 resp = await contract_call.transact(tx)
                 print('Tx hash: ', Web3.to_hex(resp))
 
@@ -125,7 +130,7 @@ class CSM:
             
         print('Uploaded keys and sent ETH to CSM sucessfully')
 
-    async def submit_keys_local_sign(self, deposit_data):
+    async def submit_keys_local_sign(self, deposit_data: dict) -> None:
 
         if self.have_repeated_keys(deposit_data):
             print("Error: one or more keys are already uploaded to the protocol")
@@ -176,7 +181,8 @@ class CSM:
                 raise CSMSubmissionException(e)
         
         print('Uploaded keys and sent ETH to CSM sucessfully')
-    async def exit_monitor(self):
+
+    async def exit_monitor(self) -> AsyncGenerator:
         async with NodeWSConnection(self.rpc) as con:
             contract = con.get_contract(**self.contracts['VEBO'])
             event = contract.events['ValidatorExitRequest']

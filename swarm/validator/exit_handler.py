@@ -1,11 +1,15 @@
+from eth_typing import Address
 import requests
 
-from swarm.exception import ExitSignException, ExitBroadcastException
+from swarm.exception import ExitSignException, ExitBroadcastException, ConsensusLayerRPCException
 from ..validator.ssh_tunnel import SSHTunnel
+from ..util import is_well_formed_url
 
 class ExitHandler():
-    def __init__(self, config):
+    def __init__(self, config: dict) -> None:
         self.beacon_rpc = config['rpc']['beacon_address']
+        if not is_well_formed_url(self.beacon_rpc, 'http'):
+            raise ConsensusLayerRPCException('Consensus layer RPC is not well formed. It must be a valid http adress, and specify a port.')
         self.keymanager_ssh = config['validator_api']['ssh_address']
         self.keymanager_port = config['validator_api']['port']
 
@@ -18,7 +22,7 @@ class ExitHandler():
             'ContentType': 'application/json'
         }
 
-    def exit(self, pubkey):
+    def exit(self, pubkey: Address) -> None:
         # try local validator
         with SSHTunnel(self.keymanager_ssh, self.keymanager_port):
             url = f'http://localhost:{self.keymanager_port}/eth/v1/validator/{pubkey}/voluntary_exit'
@@ -40,5 +44,3 @@ class ExitHandler():
             raise(ExitBroadcastException('Could not publish signed exit message'))
 
         print(f'published exit message for validator: {pubkey}')
-
-            

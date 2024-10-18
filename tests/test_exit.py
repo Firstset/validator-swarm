@@ -12,7 +12,7 @@ class TestDeposit(unittest.TestCase):
     def setUp(self):
         self.config = {
             'rpc': {
-                'beacon_address': 'beacon-rpc.xyz'
+                'beacon_address': 'http://beacon-rpc.xyz:9090'
             },
             'validator_api': {
                 'ssh_address': 'user@validator',

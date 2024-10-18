@@ -41,7 +41,7 @@ class TestLocalValidator(unittest.TestCase):
 
         post_response = Mock()
         post_response.status_code = 200
-        post_response.json.return_value = [{'status': 'imported'}]
+        post_response.json.return_value = {'data': [{'status': 'imported'}]}
         mock_post.return_value = post_response
         
         v = Validator(self.config)

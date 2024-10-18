@@ -1,7 +1,9 @@
+from eth_typing import Address
 from web3 import AsyncWeb3, WebSocketProvider
+from web3.contract import AsyncContract
 
 class NodeWSConnection():
-    def __init__(self, url):
+    def __init__(self, url: str) -> None:
         self.url = url
 
     async def __aenter__(self):
@@ -16,6 +18,7 @@ class NodeWSConnection():
         await self.w3.provider.disconnect()
         return False
 
-    def get_contract(self, address, abi):
+    def get_contract(self, address: Address, abi: dict) -> AsyncContract:
+            # os.remove(directory) ?
         return self.w3.eth.contract(address=address, abi=abi)
     

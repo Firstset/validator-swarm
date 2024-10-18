@@ -1,13 +1,14 @@
 import json
+from typing import List
+from eth_typing import Address
 import requests
 
-from swarm.exception import ValidatorDeleteException, ValidatorLoadException
+from swarm.exception import ValidatorDeleteException, ValidatorLoadException, ValidatorReadException
 from .ssh_tunnel import SSHTunnel
-
 
 class Validator():
     
-    def __init__(self, config):
+    def __init__(self, config: dict) -> None:
         self.ssh_address = config['validator_api']['ssh_address']
         self.keymanager_port = config['validator_api']['port']
 
@@ -16,7 +17,7 @@ class Validator():
             'ContentType': 'application/json'
         }
 
-    def load_keys(self, keystores, passwd):
+    def load_keys(self, keystores: List[dict], passwd: str) -> None:
         # get keys
         passwords = [passwd] * len(keystores)
         data = {
@@ -40,13 +41,15 @@ class Validator():
             response = requests.post(url=url, headers=self.headers, json=data)
             if response.status_code != 200:
                 raise ValidatorLoadException(f'Submission of keys to validator client unsuccessful. Status code: {response.status_code}')
+            if any(f['status'] != 'imported' for f in response.json()['data']):
+                raise ValidatorLoadException(f'One or more keys were not loaded into the validator client.')
             print(response.json(), flush=True) 
         
         if response.status_code == 200:
             print('Loaded keystores into validator successfuly')
         
-    def load_remote_keys(self, keystores, remote_signer_url):
-        validator_endpoint = f'http://localhost:{self.keymanager_port}/eth/v1/remotekeys'
+    def load_remote_keys(self, keystores: List[dict], remote_signer_url: str) -> None:
+        validator_endpoint = f'http://localhost:{self.keymanager_port}/eth/v1/keystores'
         validator_data = {
             'remote_keys': []
         }
@@ -60,9 +63,9 @@ class Validator():
             response = requests.get(url=validator_endpoint, headers=self.headers)
             response_json = response.json()
             
-            added_keylist = [k['pubkey'] for k in response_json['data']]
+            added_keylist = [k['validating_pubkey'] for k in response_json['data']]
             new_keylist= [f'0x{x["pubkey"]}' for x in keystores]
-            
+
             if any([x in added_keylist for x in new_keylist]):
                 raise ValidatorLoadException('The submitted keys are already loaded into the validator client.')
 
@@ -70,10 +73,11 @@ class Validator():
             print(response.json(), flush=True) 
             if response.status_code != 200:
                 raise ValidatorLoadException(f'Submission of keys to validator client unsuccessful. Status code: {response.status_code}')
+            if any(f['status'] != 'imported' for f in response.json()['data']):
+                raise ValidatorLoadException(f'One or more keys were not loaded into the validator client.')
             print("Loaded remote keys into validator successfuly")
 
-    def remove_keys(self, pubkeys):
-        
+    def remove_keys(self, pubkeys: List[Address]) -> None:
         data = {
             'pubkeys': pubkeys
         }
@@ -88,7 +92,7 @@ class Validator():
 
         print('Deleted keystores from validator successfuly')
 
-    def remove_remote_keys(self, pubkeys):
+    def remove_remote_keys(self, pubkeys: List[Address]) -> None:
         
         data = {
             'pubkeys': pubkeys
@@ -104,7 +108,7 @@ class Validator():
 
         print('Deleted remote keys from validator successfuly')
 
-    def get_loaded_keys(self):
+    def get_loaded_keys(self) -> List[Address]:
         print('Fetching all keys registered in validator...')
         # get keys
         url = f'http://localhost:{self.keymanager_port}/eth/v1/keystores'
@@ -116,12 +120,12 @@ class Validator():
             response_json = response.json()
             
             if response.status_code != 200:
-                raise Exception(f'error reading keys loaded in validator client')
+                raise ValidatorReadException(f'error reading keys loaded in validator client')
         
         added_keys = [k["validating_pubkey"] for k in response_json['data']]
         return added_keys
     
-    def get_remote_keys(self):
+    def get_remote_keys(self) -> List[Address]:
         # get keys
         url = f'http://localhost:{self.keymanager_port}/eth/v1/remotekeys'
 
@@ -132,7 +136,7 @@ class Validator():
             response_json = response.json()
             
             if response.status_code != 200:
-                raise Exception(f'error reading remote keys loaded in validator client')
+                raise ValidatorReadException(f'error reading remote keys loaded in validator client')
         
         added_keys = [k["pubkey"] for k in response_json['data']]
         return added_keys
