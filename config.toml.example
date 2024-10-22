@@ -28,4 +28,4 @@ port=9000
 url="http://my-remote-signer.xyz:port"
 
 [monitoring]
-node_operator_ids = ['420','666']
+node_operator_ids = [420, 666]
