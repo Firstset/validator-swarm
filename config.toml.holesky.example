@@ -2,7 +2,7 @@ eth_base=<eth_base_address>
 chain="holesky"
 
 [deposit]
-withdrawal_address=<withdrawal_address>
+withdrawal_address=0xF0179dEC45a37423EAD4FaD5fCb136197872EAd9
 path="/path/to/deposit/tool/deposit/"
 
 [csm]
@@ -28,4 +28,4 @@ port=9000
 url="http://my-remote-signer.xyz:port"
 
 [monitoring]
-node_operator_ids = ['420','666']
+node_operator_ids = [420, 666]
