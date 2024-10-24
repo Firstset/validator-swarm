@@ -7,7 +7,7 @@ from ..util import is_well_formed_url
 
 class ExitHandler():
     def __init__(self, config: dict) -> None:
-        self.beacon_rpc = config['rpc']['beacon_address']
+        self.beacon_rpc = config['rpc']['consensus_address']
         if not is_well_formed_url(self.beacon_rpc, 'http'):
             raise ConsensusLayerRPCException('Consensus layer RPC is not well formed. It must be a valid http adress, and specify a port.')
         self.keymanager_ssh = config['validator_api']['ssh_address']
