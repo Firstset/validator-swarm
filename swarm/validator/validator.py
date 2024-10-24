@@ -49,7 +49,8 @@ class Validator():
             print('Loaded keystores into validator successfuly')
         
     def load_remote_keys(self, keystores: List[dict], remote_signer_url: str) -> None:
-        validator_endpoint = f'http://localhost:{self.keymanager_port}/eth/v1/keystores'
+        validator_remotekeys_endpoint = f'http://localhost:{self.keymanager_port}/eth/v1/remotekeys'
+        validator_keystores_endpoint = f'http://localhost:{self.keymanager_port}/eth/v1/keystores'
         validator_data = {
             'remote_keys': []
         }
@@ -60,7 +61,7 @@ class Validator():
 
         with SSHTunnel(self.ssh_address, self.keymanager_port):
             # check if the keys are deployed
-            response = requests.get(url=validator_endpoint, headers=self.headers)
+            response = requests.get(url=validator_keystores_endpoint, headers=self.headers)
             response_json = response.json()
             
             added_keylist = [k['validating_pubkey'] for k in response_json['data']]
@@ -69,7 +70,7 @@ class Validator():
             if any([x in added_keylist for x in new_keylist]):
                 raise ValidatorLoadException('The submitted keys are already loaded into the validator client.')
 
-            response = requests.post(url=validator_endpoint, headers=self.headers, json=validator_data)
+            response = requests.post(url=validator_remotekeys_endpoint, headers=self.headers, json=validator_data)
             print(response.json(), flush=True) 
             if response.status_code != 200:
                 raise ValidatorLoadException(f'Submission of keys to validator client unsuccessful. Status code: {response.status_code}')
