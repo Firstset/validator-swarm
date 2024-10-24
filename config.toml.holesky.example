@@ -1,4 +1,4 @@
-eth_base=<eth_base_address>
+eth_base=$OPERATOR_WALLET_ADDRESS
 chain="holesky"
 
 [deposit]
@@ -24,7 +24,7 @@ port=5062
 
 [remote_signer]
 ssh_address="user@signer"
-port=9000
+port=22
 url="http://my-remote-signer.xyz:port"
 
 [monitoring]
