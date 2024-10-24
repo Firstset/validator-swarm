@@ -5,6 +5,7 @@ from .validator import Validator, RemoteSigner
 from .exception import * 
 import sys
 import secrets
+import os
 
 def read_mnemonic() -> str:
     mnemonic = input('Enter mnemonic: ')
@@ -26,7 +27,10 @@ async def deploy(config: dict, args : Namespace) -> None:
     try:
         remote_signer = RemoteSigner(config) if remote else None
         validator = Validator(config)
-        deposit = Deposit(config)
+        
+        # Use the environment variable for the deposit tool path
+        deposit_cli_path = os.environ.get('DEPOSIT_CLI_PATH', config['deposit']['path'])
+        deposit = Deposit({**config, 'deposit': {**config['deposit'], 'path': deposit_cli_path}})
         csm = CSM(config)
     except Exception as e:
         sys.exit(f'{type(e)}: {e}')
