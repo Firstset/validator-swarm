@@ -2,7 +2,7 @@ eth_base=$OPERATOR_WALLET_ADDRESS
 chain="mainnet"
 
 [deposit]
-withdrawal_address=0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f
+withdrawal_address="0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f"
 path="/path/to/deposit/tool/deposit/"
 
 [csm]

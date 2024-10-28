@@ -2,7 +2,7 @@ eth_base=$OPERATOR_WALLET_ADDRESS
 chain="holesky"
 
 [deposit]
-withdrawal_address=0xF0179dEC45a37423EAD4FaD5fCb136197872EAd9
+withdrawal_address="0xF0179dEC45a37423EAD4FaD5fCb136197872EAd9"
 path="/path/to/deposit/tool/deposit/"
 
 [csm]
