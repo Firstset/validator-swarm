@@ -15,7 +15,10 @@ class CSM:
         cwd = os.getcwd()
         self.node_operator_id = config['csm'].get('node_operator_id') # None if not present
         self.rpc = config['rpc']['execution_address']
-        if not util.is_well_formed_url(self.rpc, 'ws'):
+        if not (
+            util.is_well_formed_url(self.rpc, 'ws') or 
+            self.rpc.startswith('wss://')
+        ):
             raise ExecutionLayerRPCException('Excecution layer RPC is not well formed. It must be a valid web socket address, and specify a port.')
 
         self.eth_base = config['eth_base']
