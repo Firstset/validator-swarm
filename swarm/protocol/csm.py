@@ -33,10 +33,14 @@ class CSM:
 
         for name in contract_names:
             self.contracts[name] = {}
-            self.contracts[name]['abi'] = util.load_abi(os.path.join(cwd, 'abis', 'csm', f'{name}.json'))
+            self.contracts[name]['abi'] = util.load_json_file(os.path.join(cwd, 'abis', 'csm', f'{name}.json'))
             self.contracts[name]['address'] = config['csm']['contracts'][f'{name}_address']
 
         self.exit_monitor_ids = config['monitoring']['node_operator_ids']
+
+        ea_proofs = util.load_json_file(os.path.join(os.getcwd(), 'proofs', 'ea-merkle-proofs.json'))
+        self.is_early_access = config['eth_base'].lower() in ea_proofs
+        self.ea_proof = ea_proofs[config['eth_base'].lower()] if self.is_early_access else []
 
     def have_repeated_keys(self, deposit_data: dict):
         pubkeys = [x['pubkey'] for x in deposit_data]
@@ -69,69 +73,19 @@ class CSM:
         return [f'0x{k}' for k in split]
 
     async def get_eth_bond(self, n_validators: int) -> int:
+        curve = 1 if self.is_early_access else 0
         async with NodeWSConnection(self.rpc) as con:
             print(con)
             contract = con.get_contract(**self.contracts['accounting']) 
             if self.node_operator_id == None:
                 function = contract.functions['getBondAmountByKeysCount']
-                bond = await function(n_validators, 0).call()
+                bond = await function(n_validators, curve).call()
             else:
                 function = contract.functions['getRequiredBondForNextKeys']
                 bond = await function(self.node_operator_id, n_validators).call()
             
             print(f'Bond is {bond/(1e18)} ETH for {n_validators} keys')
         return bond
-
-    async def submit_keys(self, deposit_data: dict) -> None:
-
-        if self.have_repeated_keys(deposit_data):
-            print("Error: one or more keys are already uploaded to the protocol")
-            raise KeyExistsException()
-
-        bond = await self.get_eth_bond(len(deposit_data))
-        
-        print('Submitting keys....')
-        async with NodeWSConnection(self.rpc) as con:
-            contract = con.get_contract(**self.contracts['module'])
-            pubkeys = [Web3.to_bytes(hexstr=(x['pubkey'])) for x in deposit_data]
-            pubkeys_bytes = b''.join(pubkeys)
-            sigs = [Web3.to_bytes(hexstr=(x['signature'])) for x in deposit_data]
-            sigs_bytes = b''.join(sigs)
-            management = (util.int_to_address(0), util.int_to_address(0), False)
-            referrer =  util.int_to_address(0)
-            if self.node_operator_id == None:
-                function = contract.functions['addNodeOperatorETH']
-                contract_call = function(
-                    len(deposit_data), 
-                    pubkeys_bytes,
-                    sigs_bytes,
-                    management, 
-                    [],
-                    referrer
-                )
-            else:
-                function = contract.functions['addValidatorKeysETH']
-                contract_call = function(
-                    self.node_operator_id,
-                    len(deposit_data), 
-                    pubkeys_bytes,
-                    sigs_bytes
-                )
-            tx = {
-                'value': bond,
-                'from': self.eth_base,
-                'to': self.contracts['module']['address'],
-                }
-            try:
-                resp = await contract_call.transact(tx)
-                print('Tx hash: ', Web3.to_hex(resp))
-
-            except exceptions.ContractCustomError as e:
-                print(e.data)
-                print('Exception', e.message)
-                raise e
-            
-        print('Uploaded keys and sent ETH to CSM sucessfully')
 
     async def submit_keys_local_sign(self, deposit_data: dict) -> None:
 
@@ -158,7 +112,7 @@ class CSM:
                     pubkeys_bytes,
                     sigs_bytes,
                     management, 
-                    [],
+                    self.ea_proof,
                     referrer
                 )
             else:
