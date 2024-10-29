@@ -8,10 +8,10 @@ def int_to_address(i: int) -> str:
     addr = Web3.to_checksum_address('0x' + hex_str)
     return addr
 
-def load_abi(path: str) -> dict:
+def load_json_file(path: str) -> dict:
     with open(path, 'r') as f:
-        abi = json.load(f)
-        return abi
+        data = json.load(f)
+        return data
 
 def is_well_formed_url(url: str, protocol: str) -> bool:
     try:
