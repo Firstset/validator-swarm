@@ -2,6 +2,14 @@
 
 A CLI tool to deploy, monitor and manage validator keys for the Lido CSM.
 
+## Table of Contents
+
+- [Features](#features)
+- [Pre-requisites](#pre-requisites)
+- [Setup](#setup)
+- [Configuration](#configuration)
+- [Execute](#execute)
+
 ## Features
 
 - Deploy validators: Create and deploy new validator keys to the validator client and CSM
@@ -16,7 +24,7 @@ A CLI tool to deploy, monitor and manage validator keys for the Lido CSM.
 ## Pre-requisites
 
 - The [deposit key generation tool](https://github.com/ethereum/staking-deposit-cli)
-- A previously generated seed phrase
+- A previously generated seed phrase compliant with the deposit tool's requirements
 - Access to a synchronized, running Ethereum RPC node (EL & CL)
   - Reachable through HTTP & WS (CL & EL respectively)
 - A running validator client with support for mutiple key management (e.g. Lighthouse)
