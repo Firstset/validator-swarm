@@ -45,22 +45,25 @@ class TestCSM(unittest.TestCase):
 
     
 
+@mock.patch('swarm.protocol.csm.local_sign', autospec=True)
 @mock.patch('swarm.protocol.csm.CSM.have_repeated_keys', autospec=True)
 @mock.patch('swarm.protocol.csm.NodeWSConnection', autospec=True)
 @mock.patch('swarm.protocol.csm.CSM.get_eth_bond', autospec=True)
 @pytest.mark.asyncio
-async def test_submit_keys(mock_get_bond, mock_node_connection_class, mock_repeated_keys):
-    mock_get_bond.return_value = 2.0
+async def test_submit_keys(mock_get_bond, mock_node_connection_class, mock_repeated_keys, mock_local_sign):
+    mock_get_bond.return_value = 2
+    mock_local_sign.return_value = '0xtxhash'
     
+    # Set up contract call mocks
     add_val_existing_no_instance = mock.Mock()
-    add_val_existing_no_instance.transact = mock.AsyncMock()
-    add_val_existing_no_instance.transact.return_value = b'abcd'
+    add_val_existing_no_instance.build_transaction = mock.AsyncMock()
+    add_val_existing_no_instance.build_transaction.return_value = {'mock': 'tx'}
     add_val_existing_no = mock.Mock()
     add_val_existing_no.return_value = add_val_existing_no_instance
 
     add_val_new_no_instance = mock.Mock()
-    add_val_new_no_instance.transact = mock.AsyncMock()
-    add_val_new_no_instance.transact.return_value = b'abcd'
+    add_val_new_no_instance.build_transaction = mock.AsyncMock()
+    add_val_new_no_instance.build_transaction.return_value = {'mock': 'tx'}
     add_val_new_no = mock.Mock()
     add_val_new_no.return_value = add_val_new_no_instance
 
@@ -81,7 +84,7 @@ async def test_submit_keys(mock_get_bond, mock_node_connection_class, mock_repea
     mock_repeated_keys.return_value = False
 
     module = CSM(config)
-    await module.submit_keys([
+    await module.submit_keys_local_sign([
         {'pubkey': '0x0', 'signature': '0x3'},
         {'pubkey': '0x1', 'signature': '0x4'}
     ])
@@ -93,16 +96,18 @@ async def test_submit_keys(mock_get_bond, mock_node_connection_class, mock_repea
         b'\x03\x04',
     )
 
-    add_val_existing_no_instance.transact.assert_called_once_with({
-        'value': 2.0,
-        'from': '0xabadbabe',
-        'to': '0xCSModule'
+    add_val_existing_no_instance.build_transaction.assert_called_once_with({
+        'value': '0x2',
+        'from': '0xabadbabe'
     })
     
+    mock_local_sign.assert_called_with(8000, {'mock': 'tx'})
+
+    # Test for new node operator
     new_config = copy.deepcopy(config)
     del new_config['csm']['node_operator_id']
     module = CSM(new_config)
-    await module.submit_keys([
+    await module.submit_keys_local_sign([
         {'pubkey': '0x5', 'signature': '0x6'},
         {'pubkey': '0x7', 'signature': '0x8'}
     ])
@@ -116,11 +121,12 @@ async def test_submit_keys(mock_get_bond, mock_node_connection_class, mock_repea
         swarm.util.int_to_address(0)
     )
 
-    add_val_new_no_instance.transact.assert_called_once_with({
-        'value': 2.0,
-        'from': '0xabadbabe',
-        'to': '0xCSModule'
+    add_val_new_no_instance.build_transaction.assert_called_once_with({
+        'value': '0x2',
+        'from': '0xabadbabe'
     })
+
+    mock_local_sign.assert_called_with(8000, {'mock': 'tx'})
 
 @mock.patch('swarm.protocol.csm.CSM.have_repeated_keys', autospec=True)
 @pytest.mark.asyncio
@@ -129,7 +135,7 @@ async def test_submit_keys_repeated(mock_repeated_keys):
 
     module = CSM(config)
     with pytest.raises(KeyExistsException):
-        await module.submit_keys([
+        await module.submit_keys_local_sign([
             {'pubkey': '0x0', 'signature': '0x3'},
             {'pubkey': '0x1', 'signature': '0x4'}
         ])
