@@ -2,15 +2,16 @@ import argparse
 import toml
 import sys 
 import asyncio
-
 from . import state_check, deploy, exit, local_sign
+from .util import load_chain_addresses
 
 if __name__ == '__main__':
  
     try:
         config = toml.load("./config.toml")
+        config = load_chain_addresses(config)
     except Exception as e:
-        sys.exit(f'Error: unable to open config.toml file. {e}')
+        sys.exit(f'Error: unable to load configuration. {e}')
 
     parser = argparse.ArgumentParser(description="validator-swarm :)")
     

@@ -1,0 +1,8 @@
+{
+    "withdrawal_address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+    "csm": {
+        "module_address": "0xdA7dE2ECdDfccC6c3AF10108Db212ACBBf9EA83F",
+        "accounting_address": "0x4d72BFF1BeaC69925F8Bd12526a39BAAb069e5Da",
+        "VEBO_address": "0x0De4Ea0184c2ad0BacA7183356Aea5B8d5Bf5c6e"
+    }
+}
