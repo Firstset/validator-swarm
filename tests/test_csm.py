@@ -9,6 +9,7 @@ from swarm.exception import KeyExistsException
 pytest_plugins = ('pytest_asyncio',)
 
 config = {
+    'chain': 'holesky',
     'csm': {
         'node_operator_id': 666,
         'contracts': {

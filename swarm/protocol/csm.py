@@ -21,6 +21,7 @@ class CSM:
         ):
             raise ExecutionLayerRPCException('Excecution layer RPC is not well formed. It must be a valid web socket address, and specify a port.')
 
+        self.chain = config['chain']
         self.eth_base = config['eth_base']
 
         contract_names = [
@@ -44,7 +45,7 @@ class CSM:
 
     def have_repeated_keys(self, deposit_data: dict):
         pubkeys = [x['pubkey'] for x in deposit_data]
-        url = f'https://keys-api-holesky.testnet.fi/v1/keys/find'
+        url = 'https://keys-api.lido.fi/v1/keys/find' if self.chain == 'mainnet' else 'https://keys-api-holesky.testnet.fi/v1/keys/find'
         headers = {
             'ContentType': 'application/json'
         }
