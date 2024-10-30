@@ -12,10 +12,14 @@ A CLI tool to deploy, monitor and manage validator keys for the Lido CSM.
 
 ## Features
 
-- Deploy validators: Create and deploy new validator keys to the validator client and CSM
+- Deploy validators: 
+  - Create and deploy new validator keys to the validator client and CSM
+  - Register a new CSM Node Operator if needed
+  - Duplicate validator key checks at the validator client, remote signer and CSM level
+  - Optionally, upload keystores to a remote signer
 - Manage validator keys: 
-  - Find inconsistencies between generated keys, loaded keystores and successfully registered validators
-  - Rollback inconsistent states
+  - Find inconsistencies between keys registered in the validator client, remote signer and CSM
+  - Rollback of inconsistent states
 - Exit validators:
   - Manually, with its public key
   - Automatically, by monitoring the Lido Validator Exit Bus Oracle and actioning exit requests
