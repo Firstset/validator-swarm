@@ -38,16 +38,10 @@ eth_base=<eth_base_address>
 chain="holesky"
 
 [deposit]
-withdrawal_address=<withdrawal_address>
 path="/path/to/deposit/tool/deposit/"
 
 [csm]
 node_operator_id=999999
-
-[csm.contracts]
-module_address="0x4562c3e63c2e586cD1651B958C22F88135aCAd4f"
-accounting_address="0xc093e53e8F4b55A223c18A2Da6fA00e60DD5EFE1"
-VEBO_address="0xffDDF7025410412deaa05E3E1cE68FE53208afcb"
 
 [rpc]
 execution_address="ws://my-exec-rpc-address:port"
@@ -93,22 +87,15 @@ The configuration file contains the following parameters:
 
 ### Deposit Configuration
 
-Required for generating the deposit data.
-
-- `withdrawal_address`: Ethereum address that will receive withdrawal credentials. 
+Only required for deploying validators.
+ 
 - `path`: Path to the deposit tool binary.
 
 ### CSM (Consensus Layer Staking Module) Configuration  
 
-Required for registering validator keys to the CSM.
+Only required for deploying validators.
 
 - `node_operator_id`: Your assigned node operator ID in the CSM protocol.
-
-### CSM Contract Addresses
-
-- `module_address`: Address of the CSM module contract
-- `accounting_address`: Address of the CSM accounting contract
-- `VEBO_address`: Address of the Validator Exit Bus Oracle contract
 
 ### RPC Endpoints
 
@@ -135,7 +122,7 @@ Only for setups where the validator keys are stored in a remote signer.
 
 Only required for state checks and automated exits, not for deploying validators.
 
-- `node_operator_ids`: List of one or morenode operator IDs to monitor for exit requests
+- `node_operator_ids`: List of one or more node operator IDs to monitor for exit requests
 
 ## Execute
 
