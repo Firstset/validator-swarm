@@ -67,7 +67,7 @@ url="http://my-remote-signer.xyz:port"
 node_operator_ids = [420, 666]
 ```
 
-Some of these parameters are optional and can be omitted depending on the functionality you want to use.
+Some of these parameters are optional and can be omitted depending on the functionality you want to use. See the next section for more details.
 
 
 Install python dependencies
@@ -76,16 +76,78 @@ Install python dependencies
 pip install -r requirements.txt
 ```
 
+If you have issues with installing the dependencies or running the tool, consider setting up a virtual environment beforehand:
+
+```
+python -m venv .venv
+source .venv/bin/activate
+```
+## Configuration
+
+The configuration file contains the following parameters:
+
+### General
+
+- `eth_base`: The operator wallet address used for submitting transactions. Only required for registering new node operators or validator keys to the CSM.
+- `chain`: The Ethereum network to use (e.g. "mainnet", "holesky"). Always required.
+
+### Deposit Configuration
+
+Required for generating the deposit data.
+
+- `withdrawal_address`: Ethereum address that will receive withdrawal credentials. 
+- `path`: Path to the deposit tool binary.
+
+### CSM (Consensus Layer Staking Module) Configuration  
+
+Required for registering validator keys to the CSM.
+
+- `node_operator_id`: Your assigned node operator ID in the CSM protocol.
+
+### CSM Contract Addresses
+
+- `module_address`: Address of the CSM module contract
+- `accounting_address`: Address of the CSM accounting contract
+- `VEBO_address`: Address of the Validator Exit Bus Oracle contract
+
+### RPC Endpoints
+
+- `execution_address`: WebSocket URL for execution layer RPC. Required for interacting with the CSM (i.e. registering new node operators or validator keys, state checks, or monitoring the Validator Exit Bus Oracle).
+- `consensus_address`: HTTP URL for consensus layer RPC. Required for broadcasting validator exits.
+
+### Validator API Configuration
+
+Required for interacting with the validator client (i.e. submitting validator keys, or signing validator exits).
+
+- `auth_token`: Authentication token for validator API access.
+- `ssh_address`: SSH address for validator client access
+- `port`: Port number for validator API
+
+### Remote Signer Configuration
+
+Only for setups where the validator keys are stored in a remote signer.
+
+- `ssh_address`: SSH address for remote signer access
+- `port`: Port number for remote signer
+- `url`: HTTP URL for remote signer API
+
+### Monitoring Configuration
+
+Only required for state checks and automated exits, not for deploying validators.
+
+- `node_operator_ids`: List of one or morenode operator IDs to monitor for exit requests
 
 ## Execute
 
-### Deploy validators 
+### Deploying validators 
 
 `python -m swarm deploy --n_keys <N> --index <I> [--remote_sign]`
 
 `N` is the number of keys to be generated and submitted, and `I` is the starting index for key generation, defaults to 0.
 
 The `--remote_sign` flag indicates that the keystores will be uploaded to a remote signer, while also registered as remote keys in the configured validator. Otherwise, the keystores will be stored in the validator client.
+
+This action will create a Node Operator in the CSM if the address is not already registered. Otherwise, the generated validator keys will be registered to the configured Node Operator.
 
 ### State check
 
