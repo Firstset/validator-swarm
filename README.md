@@ -46,7 +46,7 @@ cp config.toml.holesky.example config.toml
 The Holesky config file may contain:
 
 ```toml
-eth_base=$OPERATOR_WALLET_ADDRESS
+eth_base="<YOUR OPERATOR WALLET ADDRESS>"
 chain="holesky"
 
 [deposit]
