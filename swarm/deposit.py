@@ -21,7 +21,7 @@ class Deposit:
 
     def create_keys(self, n_keys: int, index: int, mnemonic: str, password: str) -> Tuple[List[dict], List[dict]]:
         try:
-            print(f'creating {n_keys} keys...')
+            print(f'Creating {n_keys} keys...')
             subprocess.check_output([
                 self.path, 
                 '--non_interactive',

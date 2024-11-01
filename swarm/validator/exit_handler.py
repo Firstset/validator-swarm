@@ -39,19 +39,19 @@ class ExitHandler():
             if response.status_code != 200:
                 raise(ExitSignException('Could not sign validator exit message'))
             
-            print('validator exit message signed succesfully')
+            print('Validator exit message signed succesfully')
             response_json = response.json()
             signed_exit_message = response_json['data']
 
         url = f'{self.beacon_rpc}/eth/v1/beacon/pool/voluntary_exits'
         data = signed_exit_message
-        print('publishing validator exit message')
+        print('Publishing validator exit message')
         response = requests.post(url=url, json=data, headers=self.beacon_headers)
 
         if response.status_code != 200:
             raise(ExitBroadcastException('Could not publish signed exit message'))
 
-        print(f'published exit message for validator: {pubkey}')
+        print(f'Published exit message for validator: {pubkey}')
 
     async def send_telegram_message(self, message: str) -> None:
         try:
