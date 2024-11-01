@@ -23,6 +23,7 @@ A CLI tool to deploy, monitor and manage validator keys for the Lido CSM.
 - Exit validators:
   - Manually, with its public key
   - Automatically, by monitoring the Lido Validator Exit Bus Oracle and actioning exit requests
+  - Telegram notifications for detected exit requests
 - Support for remote signer setups (e.g. web3signer)
 
 ## Pre-requisites
@@ -71,6 +72,10 @@ url="http://my-remote-signer.xyz:port"
 
 [monitoring]
 node_operator_ids = [420, 666]
+
+[telegram]
+bot_token = 'xxxxxxxx-telegram-bot-token'
+channel_id = '-123456'
 ```
 
 Some of these parameters are optional and can be omitted depending on the functionality you want to use. See the next section for more details.
@@ -136,6 +141,13 @@ Only required for state checks and automated exits, not for deploying validators
 
 - `node_operator_ids`: List of one or more node operator IDs to monitor for exit requests
 
+### Telegram Configuration
+
+Only required for receiving validator exit notifications via Telegram.
+
+- `bot_token`: Telegram bot token
+- `channel_id`: Telegram channel ID
+
 ## Execute
 
 ### Deploying validators 
@@ -168,6 +180,8 @@ This subcommand will submit an exit request for a validator with a given public 
 
 This subcommand will monitor the Lido Validator Exit Bus Oracle and log exit requests for the configured node operator ids.
 
-`python -m swarm auto_exit [--delete]`
+`python -m swarm auto_exit [--delete] [--telegram]`
 
 The `--delete` flag indicates that the validator will be automatically exited when an exit request has been detected.
+
+The `--telegram` flag indicates that the exit request will be relayed to a Telegram channel.

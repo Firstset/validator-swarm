@@ -23,3 +23,7 @@ url="http://my-remote-signer.xyz:port"
 
 [monitoring]
 node_operator_ids = [999999]
+
+[telegram]
+bot_token = 'xxxxxxxx-telegram-bot-token'
+channel_id = '-123456'
