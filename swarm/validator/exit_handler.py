@@ -1,5 +1,6 @@
 from eth_typing import Address
 import requests
+import telegram
 
 from swarm.exception import ExitSignException, ExitBroadcastException, ConsensusLayerRPCException
 from ..validator.ssh_tunnel import SSHTunnel
@@ -25,6 +26,10 @@ class ExitHandler():
             'ContentType': 'application/json'
         }
 
+        if 'telegram' in config and 'bot_token' in config['telegram'] and 'channel_id' in config['telegram']:
+            self.telegram_bot_token = config['telegram']['bot_token']
+            self.telegram_channel_id = config['telegram']['channel_id']
+
     def exit(self, pubkey: Address) -> None:
         # try local validator
         with SSHTunnel(self.keymanager_ssh, self.keymanager_port):
@@ -47,3 +52,10 @@ class ExitHandler():
             raise(ExitBroadcastException('Could not publish signed exit message'))
 
         print(f'published exit message for validator: {pubkey}')
+
+    async def send_telegram_message(self, message: str) -> None:
+        try:
+            bot = telegram.Bot(token=self.telegram_bot_token)
+            await bot.send_message(chat_id=self.telegram_channel_id, text=message)
+        except Exception as e:
+            print(f"Error sending Telegram message: {str(e)}")
