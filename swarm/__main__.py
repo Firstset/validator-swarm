@@ -34,6 +34,7 @@ if __name__ == '__main__':
     
     parser_exit_monitor = subparsers.add_parser('auto_exit', help='Monitor for validator exit requests')
     parser_exit_monitor.add_argument('--delete', action='store_true', help='automatically exit validators')
+    parser_exit_monitor.add_argument('--telegram', action='store_true', help='send telegram notifications')
     parser_exit_monitor.set_defaults(func=exit.automated_exit)
     
     args = parser.parse_args()
