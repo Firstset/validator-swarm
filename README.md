@@ -108,7 +108,7 @@ Only required for deploying validators.
  
 - `path`: Path to the deposit tool binary.
 
-### CSM (Consensus Layer Staking Module) Configuration  
+### CSM (Community Staking Module) Configuration  
 
 Only required for deploying validators.
 
