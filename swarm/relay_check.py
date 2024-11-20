@@ -4,6 +4,9 @@ from .util import load_json_file
 import os
 from .connection.connection import NodeWSConnection
 from .protocol.csm import CSM
+from .exception import RelayRequestException
+
+
 async def get_whitelisted_relays(config):
     """Fetch whitelisted relays from the allowlist contract"""
     async with NodeWSConnection(config['rpc']['execution_address']) as con:
@@ -23,7 +26,7 @@ async def check_validator_registration(session, relay_url, pubkey):
                 return True
             return False
     except:
-        return False
+        raise RelayRequestException(f"Failed to request validator registration from {relay_url}")
 
 async def get_validator_keys_from_csm(config):
     csm = CSM(config)
