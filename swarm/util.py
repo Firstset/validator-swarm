@@ -55,4 +55,7 @@ def load_chain_addresses(config: dict) -> dict:
     # Add withdrawal address
     config['deposit']['withdrawal_address'] = addresses['withdrawal_address']
 
+    # Add relay allowlist address
+    config['relay_allowlist_address'] = addresses['relay_allowlist_address']
+
     return config
