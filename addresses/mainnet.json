@@ -4,5 +4,6 @@
         "module_address": "0xdA7dE2ECdDfccC6c3AF10108Db212ACBBf9EA83F",
         "accounting_address": "0x4d72BFF1BeaC69925F8Bd12526a39BAAb069e5Da",
         "VEBO_address": "0x0De4Ea0184c2ad0BacA7183356Aea5B8d5Bf5c6e"
-    }
+    },
+    "relay_allowlist_address": "0xF95f069F9AD107938F6ba802a3da87892298610E"
 }
