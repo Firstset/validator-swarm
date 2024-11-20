@@ -24,6 +24,8 @@ A CLI tool to deploy, monitor and manage validator keys for the Lido CSM.
   - Manually, with its public key
   - Automatically, by monitoring the Lido Validator Exit Bus Oracle and actioning exit requests
   - Telegram notifications for detected exit requests
+- Relay check:
+  - Check if the validator keys are registered with all whitelisted relays in the Lido Relay Allowlist contract
 - Support for remote signer setups (e.g. web3signer)
 
 ## Pre-requisites
@@ -110,7 +112,7 @@ Only required for deploying validators.
 
 ### CSM (Community Staking Module) Configuration  
 
-Only required for deploying validators.
+Required for deploying validators and checking relay registrations.
 
 - `node_operator_id`: Your assigned node operator ID in the CSM protocol.
 
