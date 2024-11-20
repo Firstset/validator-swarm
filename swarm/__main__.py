@@ -2,7 +2,7 @@ import argparse
 import toml
 import sys 
 import asyncio
-from . import state_check, deploy, exit, local_sign
+from . import state_check, deploy, exit, local_sign, relay_check
 from .util import load_chain_addresses
 
 if __name__ == '__main__':
@@ -37,6 +37,9 @@ if __name__ == '__main__':
     parser_exit_monitor.add_argument('--telegram', action='store_true', help='send telegram notifications')
     parser_exit_monitor.set_defaults(func=exit.automated_exit)
     
+    parser_relay_check = subparsers.add_parser('relay-check', help='Check validator relay coverage against allowed mev-boost relays')
+    parser_relay_check.set_defaults(func=relay_check.check_relays)
+
     args = parser.parse_args()
 
     if hasattr(args, 'func'):
