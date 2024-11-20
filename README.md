@@ -168,6 +168,12 @@ The state check subcommand will retrieve all keys registered in CSM, validator c
 
 `--delete` will attempt to remove dangling validator keys, i.e. validator keys that are present either in the validaor client or remote signer, but not in CSM. Keys registered in CSM will never be deleted.
 
+### Relay check
+
+The relay check subcommand will check if the validator keys are registered with all whitelisted relays in the Lido Relay Allowlist.
+
+`python -m swarm relay-check`
+
 ### Manual exit
 
 This subcommand will submit an exit request for a validator with a given public key.
