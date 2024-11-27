@@ -7,5 +7,5 @@ __pycache__/
 venv
 .venv
 validator_keys
-config.toml
+config.toml*
 
