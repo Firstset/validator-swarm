@@ -16,22 +16,34 @@ def print_state_summary(state) -> None:
     print('VALIDATOR KEYS STATE SUMMARY:')
     print('-------------------------------')
     print(f'In CSM, Validator, and RemoteSigner: {len(state["R1"])}')
-    print(f'\t Locally signed:  {len(state['R1_local'])} {warning if len(state['R1_local']) > 0 else ok}')
-    print(f'\t Remotely signed: {len(state['R1_remote'])} {warning if len(state['R1_remote']) == 0 else ok}')
+    print(f'\t Locally signed:  {len(state["R1_local"])} {warning if len(state["R1_local"]) > 0 else ok}')
+    print(f'\t Remotely signed: {len(state["R1_remote"])} {warning if len(state["R1_remote"]) == 0 else ok}')
     print('-------------------------------')
     print('In CSM and Validator, but not in RemoteSigner:', len(state['R2']))
-    print(f'\t Locally signed:  {len(state['R2_local'])} {warning if len(state['R2_local']) == 0 else ok}')
-    print(f'\t Remotely signed: {len(state['R2_remote'])} {warning if len(state['R2_remote']) > 0 else ok}')
+    print(f'\t Locally signed:  {len(state["R2_local"])} {warning if len(state["R2_local"]) == 0 else ok}')
+    print(f'\t Remotely signed: {len(state["R2_remote"])} {warning if len(state["R2_remote"]) > 0 else ok}')
+    if state["R2_remote"]:
+        print("\t\tKeys:", ", ".join(str(k) for k in state["R2_remote"]))
     print('-------------------------------')
-    print(f'In CSM and RemoteSigner, but not in Validator: {len(state['R3'])} {critical if len(state['R3']) > 0 else ok}')
+    print(f'In CSM and RemoteSigner, but not in Validator: {len(state["R3"])} {critical if len(state["R3"]) > 0 else ok}')
+    if state["R3"]:
+        print("\tKeys:", ", ".join(str(k) for k in state["R3"]))
     print('-------------------------------')
-    print(f'In Validator and RemoteSigner, but not in CSM: {len(state['R4'])} {warning if len(state['R4']) > 0 else ok}')
+    print(f'In Validator and RemoteSigner, but not in CSM: {len(state["R4"])} {warning if len(state["R4"]) > 0 else ok}')
+    if state["R4"]:
+        print("\tKeys:", ", ".join(str(k) for k in state["R4"]))
     print('-------------------------------')
-    print(f'Only in CSM: {len(state['R5'])} {critical if len(state['R5']) > 0 else ok}')
+    print(f'Only in CSM: {len(state["R5"])} {critical if len(state["R5"]) > 0 else ok}')
+    if state["R5"]:
+        print("\tKeys:", ", ".join(str(k) for k in state["R5"]))
     print('-------------------------------')
-    print(f'Only in Validator: {len(state['R6'])} {warning if len(state['R6']) > 0 else ok}')
+    print(f'Only in Validator: {len(state["R6"])} {warning if len(state["R6"]) > 0 else ok}')
+    if state["R6"]:
+        print("\tKeys:", ", ".join(str(k) for k in state["R6"]))
     print('-------------------------------')
-    print(f'Only in RemoteSigner: {len(state['R7'])} {warning if len(state['R7']) > 0 else ok}')
+    print(f'Only in RemoteSigner: {len(state["R7"])} {warning if len(state["R7"]) > 0 else ok}')
+    if state["R7"]:
+        print("\tKeys:", ", ".join(str(k) for k in state["R7"]))
     print('-------------------------------')
 
 def compute_state(
