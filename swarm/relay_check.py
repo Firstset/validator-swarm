@@ -116,7 +116,7 @@ def print_summary_report(results, mandatory_relays, optional_relays):
         mandatory_coverage = f"{data['mandatory_total']}/{len(mandatory_relays)}"
         optional_coverage = f"{data['optional_total']}/{len(optional_relays)}"
         
-        print(f"Validator {validator[:12]}... : {status:6} (Mandatory: {mandatory_coverage}, Optional: {optional_coverage})")
+        print(f"Validator {validator} : {status:6} (Mandatory: {mandatory_coverage}, Optional: {optional_coverage})")
     
     print(f"\nSummary: {ok_count} validators OK, {not_ok_count} validators NOT OK")
 
@@ -129,7 +129,7 @@ def print_detailed_report(results, relay_tuples, mandatory_relays, optional_rela
         is_ok = data['mandatory_total'] >= 2
         status = "OK" if is_ok else "NOT OK"
         
-        print(f"\nValidator {validator[:12]}... : {status}")
+        print(f"\nValidator {validator} : {status}")
         print(f"Registered with {data['mandatory_total']}/{len(mandatory_relays)} mandatory relays")
         print(f"Registered with {data['optional_total']}/{len(optional_relays)} optional relays")
         
