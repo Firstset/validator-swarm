@@ -39,6 +39,7 @@ if __name__ == '__main__':
     
     parser_relay_check = subparsers.add_parser('relay-check', help='Check validator relay coverage against allowed mev-boost relays')
     parser_relay_check.add_argument('--detailed', action='store_true', help='Show detailed registration information')
+    parser_relay_check.add_argument('--pubkey', type=str, help='the public key of the validator to report on')
     parser_relay_check.set_defaults(func=relay_check.check_relays)
 
     args = parser.parse_args()

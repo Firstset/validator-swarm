@@ -174,9 +174,11 @@ The state check subcommand will retrieve all keys registered in CSM, validator c
 
 The relay check subcommand will check if the validator keys are registered with all whitelisted relays in the Lido Relay Allowlist.
 
-`python -m swarm relay-check [--detailed]`
+`python -m swarm relay-check [--detailed] [--pubkey <pubkey>]`
 
 The `--detailed` flag will print a more detailed report with specific relay URLs per validator.
+
+The `--pubkey` flag allows checking a specific validator, showing a detailed report for just that validator.
 
 ### Manual exit
 

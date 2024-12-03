@@ -50,7 +50,16 @@ async def check_relays(config, args):
     
     # Get validator public keys from CSM
     validator_keys = await get_validator_keys_from_csm(config)
-    print(f"Found {len(validator_keys)} validators in CSM")
+    
+    # If pubkey is specified, only check that validator
+    if hasattr(args, 'pubkey') and args.pubkey:
+        if args.pubkey not in validator_keys:
+            print(f"Error: Validator {args.pubkey} not found in CSM")
+            return
+        validator_keys = [args.pubkey]
+        print(f"Checking specific validator: {args.pubkey}")
+    else:
+        print(f"Found {len(validator_keys)} validators in CSM")
     
     # Check registration for each validator with each relay
     async with aiohttp.ClientSession() as session:
@@ -88,10 +97,11 @@ async def check_relays(config, args):
                     elif is_registered is None:
                         results[validator]['unknown'].append(relay_url)
             
-            print(f"Processed {min(i + chunk_size, len(validator_keys))}/{len(validator_keys)} validators...")
+            if not args.pubkey:  # Only show progress for bulk checks
+                print(f"Processed {min(i + chunk_size, len(validator_keys))}/{len(validator_keys)} validators...")
         
         # Print results based on mode
-        if hasattr(args, 'detailed') and args.detailed:
+        if args.pubkey or (hasattr(args, 'detailed') and args.detailed):
             print_detailed_report(results, relay_tuples, mandatory_relays, optional_relays)
         else:
             print_summary_report(results, mandatory_relays, optional_relays)
