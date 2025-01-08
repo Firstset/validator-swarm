@@ -133,7 +133,7 @@ async def do_check(config: dict, args: Namespace) -> None:
     for id in no_ids:
         csm_keys += await csm.get_registered_keys(id)
     
-    state = compute_state(csm_keys, validator_keys, validator_remote_keys, remote_signer_keys)
+    state = compute_state(csm_keys, validator_keys, validator_remote_keys)
     print_state_summary(state)
     
     if delete:
