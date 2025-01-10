@@ -13,6 +13,7 @@ fi
 if [ "$1" = "shell" ]; then
     echo "Starting shell in container..."
     docker run -it \
+        -p 8000:8000 \
         -v "$(pwd)/swarm:/app/swarm" \
         -v "$(pwd)/abis:/app/abis" \
         -v "$(pwd)/addresses:/app/addresses" \

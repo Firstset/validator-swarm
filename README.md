@@ -88,6 +88,9 @@ Some of these parameters are optional and can be omitted depending on the functi
 `./swarm.sh state-check`
 `./swarm.sh state-check --delete`
 
+`./swarm.sh docker-rebuild`
+`./swarm.sh shell`
+
 ## Install python dependencies
 
 ```
