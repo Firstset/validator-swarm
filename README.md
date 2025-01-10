@@ -82,8 +82,13 @@ channel_id = '-123456'
 
 Some of these parameters are optional and can be omitted depending on the functionality you want to use. See the next section for more details.
 
+## Run the script
+`chmod +x swarm.sh`
+`./swarm.sh deploy -n 1 -i 0`
+`./swarm.sh state-check`
+`./swarm.sh state-check --delete`
 
-Install python dependencies
+## Install python dependencies
 
 ```
 pip install -r requirements.txt
