@@ -121,6 +121,9 @@ async def do_check(config: dict, args: Namespace) -> None:
     csm = CSM(config)
     validator = Validator(config)
 
+    # Initialize remote_signer to None
+    remote_signer = None
+
     # Check if remote signer is present in the config
     if 'remote_signer' in config:  # Check for remote signer configuration
         remote_signer = RemoteSigner(config)
@@ -138,9 +141,10 @@ async def do_check(config: dict, args: Namespace) -> None:
     for id in no_ids:
         csm_keys += await csm.get_registered_keys(id)
     
-    state = compute_state(csm_keys, validator_keys, validator_remote_keys,remote_signer_keys)
+    state = compute_state(csm_keys, validator_keys, validator_remote_keys, remote_signer_keys)
     print_state_summary(state)
     
-    if delete and remote_signer_keys:  # Only delete if remote signer keys are present
-        delete_dangling(state, validator_remote_keys, remote_signer, validator)
+    if delete:  # Delete if the --delete flag is present, regardless of remote signer keys
+        print("Deleting dangling keys...")
+        delete_dangling(state, validator_remote_keys, remote_signer, validator)  # remote_signer can be None
 
