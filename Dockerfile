@@ -15,10 +15,6 @@ RUN apt-get update && \
     libc6 \
     && rm -rf /var/lib/apt/lists/*
 
-# Print architecture information for debugging
-RUN uname -a && \
-    dpkg --print-architecture
-
 # Setup SSH directory
 RUN mkdir -p /root/.ssh && \
     chmod 700 /root/.ssh
@@ -57,6 +53,3 @@ COPY proofs/ /app/proofs/
 RUN pip install -r requirements.txt
 
 WORKDIR /app
-
-# Final verification of deposit CLI
-RUN /usr/local/bin/deposit --help || true
