@@ -16,6 +16,11 @@ auth_token="api-token-0x123456789"
 ssh_address="user@server"
 port=5062
 
+[remote_signer]
+ssh_address="user@signer"
+port=22
+url="http://my-remote-signer.xyz:port"
+
 [monitoring]
 node_operator_ids = [420, 666]
 
