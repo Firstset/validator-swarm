@@ -5,6 +5,7 @@ cp -r ~/.ssh .
 # Handle docker-rebuild command
 if [ "$1" = "docker-rebuild" ]; then
     echo "Rebuilding Docker image..."
+    docker rmi $(docker images -q swarm-python)
     docker build -t swarm-python . --no-cache
     exit 0
 fi
@@ -12,7 +13,7 @@ fi
 # Handle shell command
 if [ "$1" = "shell" ]; then
     echo "Starting shell in container..."
-    docker run -it \
+    docker run -it --rm \
         -p 8000:8000 \
         -v "$(pwd)/swarm:/app/swarm" \
         -v "$(pwd)/abis:/app/abis" \
@@ -27,10 +28,13 @@ fi
 mkdir -p swarm abis addresses proofs downloads
 
 # Build the Docker image if it doesn't exist
-docker build -t swarm-python . 2>/dev/null
+if ! docker images swarm-python:latest -q | grep -q .; then
+    echo "Building Docker image..."
+    docker build -t swarm-python .
+fi
 
 # Run the container with all folders mounted
-docker run -it \
+docker run -it --rm \
     -p 8000:8000 \
     -v "$(pwd)/swarm:/app/swarm" \
     -v "$(pwd)/abis:/app/abis" \
