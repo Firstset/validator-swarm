@@ -41,3 +41,6 @@ config.toml*
 
 # MacOS
 *.DS_Store
+
+# Docker
+.ssh
