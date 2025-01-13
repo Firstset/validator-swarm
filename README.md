@@ -30,7 +30,9 @@ A CLI tool to deploy, monitor and manage validator keys for the Lido CSM.
 
 ## Pre-requisites
 
+- Python (>=3.12 recommended) or Docker
 - The [deposit key generation tool](https://github.com/ethereum/staking-deposit-cli)
+  - Not needed if using the Docker executable
 - A previously generated seed phrase compliant with the deposit tool's requirements
 - Access to a synchronized, running Ethereum RPC node (EL & CL)
   - Reachable through HTTP & WS (CL & EL respectively)
@@ -39,6 +41,55 @@ A CLI tool to deploy, monitor and manage validator keys for the Lido CSM.
   - Reachable through SSH
 
 ## Setup
+
+The tool can be run either with Python or Docker.
+
+### Python
+
+Install python dependencies:
+
+```
+pip install -r requirements.txt
+```
+
+If you have issues with installing the dependencies or running the tool, consider setting up a virtual environment beforehand:
+
+```
+python -m venv .venv
+source .venv/bin/activate
+```
+
+You can then run the tool with:
+
+```
+python -m swarm <command>
+```
+
+See the [Commands](#commands) section for more details.
+
+### Docker
+
+You can also run the tool with Docker, like this:
+
+```
+./swarm.sh <command>
+```
+
+See the [Commands](#commands) section for more details.
+
+If you make changes to your configuration file, or any other environment files (i.e. your local ssh directory), you will need to rebuild the Docker image, like this:
+
+```
+./swarm.sh docker-rebuild
+```
+
+If you want to enter the Docker container shell, you can do so with:
+
+```
+./swarm.sh shell
+```
+
+### Configuration file
 
 Copy `config.toml.holesky.example` or `config.toml.mainnet.example` to `config.toml` and fill with your configuration values
 
@@ -82,27 +133,6 @@ channel_id = '-123456'
 
 Some of these parameters are optional and can be omitted depending on the functionality you want to use. See the next section for more details.
 
-## Run the script
-`chmod +x swarm.sh`
-`./swarm.sh deploy -n 1 -i 0`
-`./swarm.sh state-check`
-`./swarm.sh state-check --delete`
-
-`./swarm.sh docker-rebuild`
-`./swarm.sh shell`
-
-## Install python dependencies
-
-```
-pip install -r requirements.txt
-```
-
-If you have issues with installing the dependencies or running the tool, consider setting up a virtual environment beforehand:
-
-```
-python -m venv .venv
-source .venv/bin/activate
-```
 ## Configuration
 
 The configuration file contains the following parameters:
@@ -158,11 +188,13 @@ Only required for receiving validator exit notifications via Telegram.
 - `bot_token`: Telegram bot token
 - `channel_id`: Telegram channel ID
 
-## Execute
+## Commands
+
+The commands below are the same for both Python and Docker. The Python command is prefixed with `python -m swarm`, while the Docker command is prefixed with `./swarm.sh`.
 
 ### Deploying validators 
 
-`python -m swarm deploy --n_keys <N> --index <I> [--remote_sign]`
+`deploy --n_keys <N> --index <I> [--remote_sign]`
 
 `N` is the number of keys to be generated and submitted, and `I` is the starting index for key generation, defaults to 0.
 
@@ -174,7 +206,7 @@ This action will create a Node Operator in the CSM if the address is not already
 
 The state check subcommand will retrieve all keys registered in CSM, validator client, and remote signer, and check for inconsistencies.
 
-`python -m swarm state-check [--delete]`
+`state-check [--delete]`
 
 `--delete` will attempt to remove dangling validator keys, i.e. validator keys that are present either in the validaor client or remote signer, but not in CSM. Keys registered in CSM will never be deleted.
 
@@ -182,7 +214,7 @@ The state check subcommand will retrieve all keys registered in CSM, validator c
 
 The relay check subcommand will check if the validator keys are registered with all whitelisted relays in the Lido Relay Allowlist.
 
-`python -m swarm relay-check [--detailed] [--pubkey <pubkey>]`
+`relay-check [--detailed] [--pubkey <pubkey>]`
 
 The `--detailed` flag will print a more detailed report with specific relay URLs per validator.
 
@@ -192,7 +224,7 @@ The `--pubkey` flag allows checking a specific validator, showing a detailed rep
 
 This subcommand will submit an exit request for a validator with a given public key.
 
-`python -m swarm exit --pubkey <pubkey>`
+`exit --pubkey <pubkey>`
 
 `pubkey` is the public key of the validator to be exited.
 
@@ -200,7 +232,7 @@ This subcommand will submit an exit request for a validator with a given public 
 
 This subcommand will monitor the Lido Validator Exit Bus Oracle and log exit requests for the configured node operator ids.
 
-`python -m swarm auto_exit [--delete] [--telegram]`
+`auto_exit [--delete] [--telegram]`
 
 The `--delete` flag indicates that the validator will be automatically exited when an exit request has been detected.
 
