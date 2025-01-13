@@ -8,7 +8,7 @@ A CLI tool to deploy, monitor and manage validator keys for the Lido CSM.
 - [Pre-requisites](#pre-requisites)
 - [Setup](#setup)
 - [Configuration](#configuration)
-- [Execute](#execute)
+- [Commands](#commands)
 
 ## Features
 
@@ -32,7 +32,7 @@ A CLI tool to deploy, monitor and manage validator keys for the Lido CSM.
 
 - Python (>=3.12 recommended) or Docker
 - The [deposit key generation tool](https://github.com/ethereum/staking-deposit-cli)
-  - Not needed if using the Docker executable
+  - Not needed if using Docker script
 - A previously generated seed phrase compliant with the deposit tool's requirements
 - Access to a synchronized, running Ethereum RPC node (EL & CL)
   - Reachable through HTTP & WS (CL & EL respectively)
