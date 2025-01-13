@@ -38,6 +38,7 @@ ENV/
 
 # Project specific
 config.toml*
+.ssh
 
 # MacOS
 *.DS_Store
