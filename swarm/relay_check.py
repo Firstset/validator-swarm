@@ -17,17 +17,23 @@ async def get_whitelisted_relays(config):
         relays = await contract.functions.get_relays().call()
         return relays
 
-async def check_validator_registration(session, relay_url, pubkey):
-    """Check if a validator is registered with a specific relay"""
+async def check_validator_registration(session, relay_url, pubkey, config):
+    """Check if a validator is registered with a specific relay and verify fee recipient"""
     url = f"{relay_url}/relay/v1/data/validator_registration"
+    
     try:
         async with session.get(url, params={'pubkey': pubkey}, timeout=5) as response:
             if response.status == 200:
-                return True
-            return False
+                data = await response.json()
+                if 'message' in data and 'fee_recipient' in data['message']:
+                    fee_recipient = data['message']['fee_recipient']
+                    # Return tuple of (registration status, fee recipient)
+                    return (True, fee_recipient.lower() == config['fee_recipient'].lower(), fee_recipient)
+                return (False, False, None)
+            return (False, False, None)
     except Exception as e:
         print(f"Warning: Could not check registration status for {relay_url}: {str(e)}")
-        return None  # Return None to indicate unknown status
+        return None
 
 async def get_validator_keys_from_csm(config):
     csm = CSM(config)
@@ -77,25 +83,31 @@ async def check_relays(config, args):
                     'optional_total': 0,
                     'mandatory_relays': [],
                     'optional_relays': [],
-                    'unknown': []
+                    'unknown': [],
+                    'fee_mismatches': []  # Add this field to track fee mismatches
                 }
                 for relay_url in relay_urls:
-                    tasks.append(check_validator_registration(session, relay_url, validator))
+                    tasks.append(check_validator_registration(session, relay_url, validator, config))
             
             chunk_results = await asyncio.gather(*tasks)
             
             for validator_idx, validator in enumerate(validator_chunk):
-                for relay_idx, is_registered in enumerate(chunk_results[validator_idx * len(relay_urls):(validator_idx + 1) * len(relay_urls)]):
+                for relay_idx, result in enumerate(chunk_results[validator_idx * len(relay_urls):(validator_idx + 1) * len(relay_urls)]):
                     relay_url = relay_urls[relay_idx]
-                    if is_registered is True:
-                        if relay_url in mandatory_relays:
-                            results[validator]['mandatory_total'] += 1
-                            results[validator]['mandatory_relays'].append(relay_url)
-                        else:
-                            results[validator]['optional_total'] += 1
-                            results[validator]['optional_relays'].append(relay_url)
-                    elif is_registered is None:
+                    if result is None:
                         results[validator]['unknown'].append(relay_url)
+                    else:
+                        is_registered, fee_matches, fee_recipient = result
+                        if is_registered:
+                            if not fee_matches:
+                                results[validator]['fee_mismatches'].append((relay_url, fee_recipient))
+                            
+                            if relay_url in mandatory_relays:
+                                results[validator]['mandatory_total'] += 1
+                                results[validator]['mandatory_relays'].append(relay_url)
+                            else:
+                                results[validator]['optional_total'] += 1
+                                results[validator]['optional_relays'].append(relay_url)
             
             if not args.pubkey:  # Only show progress for bulk checks
                 print(f"Processed {min(i + chunk_size, len(validator_keys))}/{len(validator_keys)} validators...")
@@ -113,12 +125,18 @@ def print_summary_report(results, mandatory_relays, optional_relays):
     
     ok_count = 0
     not_ok_count = 0
+    fee_mismatch_count = 0
     
     for validator, data in results.items():
-        is_ok = data['mandatory_total'] >= 2  # At least 2 mandatory relays required
-        status = "OK" if is_ok else "NOT OK"
+        has_fee_mismatch = len(data.get('fee_mismatches', [])) > 0
+        is_ok = data['mandatory_total'] >= 2 and not has_fee_mismatch  # At least 2 mandatory relays required and no fee mismatches
         
-        if is_ok:
+        status = "OK" if is_ok else "NOT OK"
+        if has_fee_mismatch:
+            status += " (⚠️ Fee mismatch)"
+            fee_mismatch_count += 1
+        
+        if is_ok and not has_fee_mismatch:
             ok_count += 1
         else:
             not_ok_count += 1
@@ -129,6 +147,10 @@ def print_summary_report(results, mandatory_relays, optional_relays):
         print(f"Validator {validator} : {status:6} (Mandatory: {mandatory_coverage}, Optional: {optional_coverage})")
     
     print(f"\nSummary: {ok_count} validators OK, {not_ok_count} validators NOT OK")
+    if fee_mismatch_count > 0:
+        print(f"Warning: {fee_mismatch_count} validators have fee recipient mismatches")
+    else:
+        print("All validators have correct fee recipient set")
 
 def print_detailed_report(results, relay_tuples, mandatory_relays, optional_relays):
     """Print detailed report of validator relay registration status"""
@@ -136,29 +158,22 @@ def print_detailed_report(results, relay_tuples, mandatory_relays, optional_rela
     print("-" * 50)
     
     for validator, data in results.items():
-        is_ok = data['mandatory_total'] >= 2
+        has_fee_mismatch = len(data.get('fee_mismatches', [])) > 0
+        is_ok = data['mandatory_total'] >= 2 and not has_fee_mismatch
+        
         status = "OK" if is_ok else "NOT OK"
+        if has_fee_mismatch:
+            status += " (⚠️ Fee mismatch)"
         
         print(f"\nValidator {validator} : {status}")
         print(f"Registered with {data['mandatory_total']}/{len(mandatory_relays)} mandatory relays")
         print(f"Registered with {data['optional_total']}/{len(optional_relays)} optional relays")
         
-        if data['unknown']:
-            print(f"Could not check status for {len(data['unknown'])} relay(s):")
-            for relay in data['unknown']:
+        if data.get('fee_mismatches'):
+            print("\nFee recipient mismatches:")
+            for relay, incorrect_fee in data['fee_mismatches']:
                 relay_info = next(r for r in relay_tuples if r[0] == relay)
-                print(f"  ? {relay} ({relay_info[1]} - {relay_info[3]})")
+                print(f"  ! {relay} ({relay_info[1]} - {relay_info[3]}) - Incorrect fee recipient: {incorrect_fee}")
+        else:
+            print("Fee recipient is correctly set for all relays")
         
-        missing_mandatory = set(mandatory_relays) - set(data['mandatory_relays'])
-        if missing_mandatory:
-            print("Missing mandatory registrations:")
-            for relay in missing_mandatory:
-                relay_info = next(r for r in relay_tuples if r[0] == relay)
-                print(f"  - {relay} ({relay_info[1]} - {relay_info[3]})")
-        
-        missing_optional = set(optional_relays) - set(data['optional_relays'])
-        if missing_optional:
-            print("Missing optional registrations:")
-            for relay in missing_optional:
-                relay_info = next(r for r in relay_tuples if r[0] == relay)
-                print(f"  - {relay} ({relay_info[1]} - {relay_info[3]})")

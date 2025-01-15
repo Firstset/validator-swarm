@@ -58,4 +58,7 @@ def load_chain_addresses(config: dict) -> dict:
     # Add relay allowlist address
     config['relay_allowlist_address'] = addresses['relay_allowlist_address']
 
+    # Add fee recipient
+    config['fee_recipient'] = addresses['fee_recipient']
+
     return config
